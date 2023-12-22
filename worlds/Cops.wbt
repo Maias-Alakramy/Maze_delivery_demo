@@ -10,7 +10,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation 0.006930633814858677 -0.9999606754671658 -0.005532976972103791 4.488597788331103
-  position 3.1790848065565953 -1.015841584719208 18.475643882933085
+  position 0.5764748503296212 -0.1102527873944753 3.0825206883700043
 }
 TexturedBackground {
 }
@@ -18,9 +18,27 @@ TexturedBackgroundLight {
 }
 RectangleArena {
   floorSize 3 3
+  floorAppearance NULL
 }
 KukaBox {
+  translation 0 0.5 0
+  name "Blue box"
+  color 0 0 1
+}
+KukaBox {
+  translation 0.1 0.5 0
+  name "Road box"
+  color 0 0 1
+}
+KukaBox {
+  translation 0.1 0.4 0
+  name "Red box"
+  color 1 0 0
+}
+KukaBox {
+  translation 0 0.4 0
+  name "Green box"
+  color 0 1 0
 }
 Youbot {
-  
 }
