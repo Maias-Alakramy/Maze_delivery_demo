@@ -3,54 +3,24 @@
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/gctronic/e-puck/protos/E-puck.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/apartment_structure/protos/Wall.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/KukaBox.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/Youbot.proto"
 
 WorldInfo {
 }
 Viewpoint {
   orientation 0.006930633814858677 -0.9999606754671658 -0.005532976972103791 4.488597788331103
-  position -0.25480081283954603 -1.0634088240347725 3.3843880950730876
+  position 3.1790848065565953 -1.015841584719208 18.475643882933085
 }
 TexturedBackground {
-}
-E-puck {
-  translation -1.38 -1.38 0
-  controller "WallFollower"
 }
 TexturedBackgroundLight {
 }
 RectangleArena {
   floorSize 3 3
 }
-Wall {
-  translation -1.25 -1.25 0
-  size 0.5 0.01 0.1
+KukaBox {
 }
-Wall {
-  translation -0.88 -0.75 0
-  name "wall(1)"
-  size 0.75 0.01 0.1
-}
-Wall {
-  translation -1 -0.5 0
-  name "wall(3)"
-  size 1 0.01 0.1
-}
-Wall {
-  translation -0.5 -1 0
-  rotation 0 0 1 -1.5707953071795862
-  name "wall(4)"
-  size 1 0.01 0.1
-}
-Wall {
-  translation -0.74 -1 0
-  rotation 0 0 1 -1.5707953071795862
-  name "wall(5)"
-  size 0.5 0.01 0.1
-}
-Wall {
-  translation -1.24 -1 0
-  name "wall(2)"
-  size 0.5 0.01 0.1
+Youbot {
+  
 }
