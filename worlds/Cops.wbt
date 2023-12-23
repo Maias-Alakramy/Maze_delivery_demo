@@ -7,6 +7,7 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/Youbot.proto"
 
 WorldInfo {
+  title "MazeRunner"
   contactProperties [
     ContactProperties {
       material1 "ExteriorWheelMat"
@@ -33,15 +34,17 @@ WorldInfo {
   ]
 }
 Viewpoint {
+  fieldOfView 0.75
   orientation 0.006930633814858677 -0.9999606754671658 -0.005532976972103791 4.488597788331103
-  position 0.5764748503296212 -0.1102527873944753 3.0825206883700043
+  position 7.131853021608196 -0.1364286376663398 31.960307175931618
+  follow "TheBot"
 }
 TexturedBackground {
 }
 TexturedBackgroundLight {
 }
 RectangleArena {
-  floorSize 3 3
+  floorSize 10 10
   floorAppearance NULL
 }
 KukaBox {
@@ -65,4 +68,5 @@ KukaBox {
   color 0 1 0
 }
 Youbot {
+  name "TheBot"
 }
