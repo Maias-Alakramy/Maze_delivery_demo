@@ -1,0 +1,63 @@
+#VRML_SIM R2023b utf8
+# A single wall piece for the construction of a maze.
+# template language: javascript
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/FormedConcrete.proto"
+
+PROTO MazeWall [
+  field SFVec3f translation 0 0 .1
+  field SFRotation rotation 0 0 1 0
+  field SFString name "Wall"
+  field SFVec3f size .18 .5 .2
+]
+{
+%<
+  let size = fields.size.value;
+
+  let max_size = 50;
+  let min_size = 0.01;
+
+  if (size.x > max_size) {
+    console.error('\'size.x\' greater than maximal size (' + max_size + '). Value clamped.');
+    size.x = max_size;
+  } else if (size.x < min_size) {
+    console.error('\'size.x\' less than minimal size (' + min_size + '). Value clamped.');
+    size.x = min_size;
+  }
+
+  if (size.y > max_size) {
+    console.error('\'size.y\' greater than maximal size (' + max_size + '). Value clamped.');
+    size.y = max_size;
+  } else if (size.y < min_size) {
+    console.error('\'size.y\' less than minimal size (' + min_size + '). Value clamped.');
+    size.y = min_size;
+  }
+
+  if (size.z > max_size) {
+    console.error('\'size.z\' greater than maximal size (' + max_size + '). Value clamped.');
+    size.z = max_size;
+  } else if (size.z < min_size) {
+    console.error('\'size.z\' less than minimal size (' + min_size + '). Value clamped.');
+    size.z = min_size;
+  }
+>%
+
+  Solid {
+    translation IS translation
+    rotation IS rotation
+    name IS name
+    children [
+       DEF WALL_SHAPE Shape {
+        appearance FormedConcrete {
+          textureTransform TextureTransform {
+            scale %<= size.y * 7.5 >% 1
+          }
+        }
+        geometry Box {
+          size %<= size.x >% %<= size.y >% %<= size.z >%
+        }
+      }
+    ]
+    boundingObject USE WALL_SHAPE
+  }
+}

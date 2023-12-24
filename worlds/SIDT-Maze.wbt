@@ -2,14 +2,13 @@
 
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/FormedConcrete.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/factory/containers/protos/WoodenBox.proto"
+EXTERNPROTO "../protos/MazeCodegen.proto"
 
 WorldInfo {
 }
 Viewpoint {
   orientation -0.5773502691896258 0.5773502691896258 0.5773502691896258 2.0944
-  position -0.13216391110810846 3.60889939424648e-05 16.02184236810148
+  position -0.013086840522048938 -0.2621782740682678 14.942710556351981
 }
 TexturedBackground {
 }
@@ -40,20 +39,6 @@ Solid {
   }
   locked TRUE
 }
-Solid {
-  translation -0.1322 -0.07 0
-  children [
-    Shape {
-      appearance FormedConcrete {
-      }
-      geometry Box {
-        size 0.18 2.0658587663775094 0.1
-      }
-    }
-  ]
-  name "Wall Piece"
-}
-WoodenBox {
-  translation 1.17 0 0.3
-  name "wooden box(1)"
+MazeCodegen {
+  size 9.45 9.45
 }
