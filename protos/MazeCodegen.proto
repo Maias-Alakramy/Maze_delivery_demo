@@ -9,7 +9,7 @@ PROTO MazeCodegen [
   field SFRotation rotation 0 0 1 0
   field SFString name "solid"
   field SFString url "worlds/textures/sidt-codegen.tex"
-  field SFVec2f size 10 10
+  field SFVec2f size 9.45 9.45
   field SFFloat width .36
   field SFFloat height .2
 ]
