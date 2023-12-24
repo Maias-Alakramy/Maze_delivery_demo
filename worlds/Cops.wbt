@@ -68,7 +68,35 @@ KukaBox {
   color 0 1 0
 }
 Youbot {
+  translation 0.6 -0.04 0.12
+  rotation 0 0 1 3.14159
   name "TheBot"
+  bodySlot [
+    DistanceSensor {
+      translation 0.28 0.075 -0.03
+      rotation 0 1 0 1.57079
+      name "IR_3"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0.28 0.025 -0.03
+      rotation 0 1 0 1.57079
+      name "IR_2"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0.28 -0.025 -0.03
+      rotation 0 1 0 1.57079
+      name "IR_1"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0.28 -0.075 -0.03
+      rotation 0 1 0 1.57079
+      name "IR_0"
+      type "infra-red"
+    }
+  ]
 }
 Transform {
   translation -2.88107 -0.50831 0.001
