@@ -35,8 +35,8 @@ WorldInfo {
 }
 Viewpoint {
   fieldOfView 0.75
-  orientation 0.006930633814858677 -0.9999606754671658 -0.005532976972103791 4.488597788331103
-  position 7.131853021608196 -0.1364286376663398 31.960307175931618
+  orientation -0.5201435234070054 -0.09477169142740173 0.8488044778167321 3.4484762403179117
+  position 7.755297709864028 3.320470216732522 14.945178300184846
   follow "TheBot"
 }
 TexturedBackground {
@@ -69,4 +69,16 @@ KukaBox {
 }
 Youbot {
   name "TheBot"
+}
+Transform {
+  translation -2.88107 -0.50831 0.001
+  rotation 0 0 1 1.4398996938995747
+  scale 0.05 0.05 0.05
+  children [
+    CadShape {
+      url [
+        "../meshes/Path/Path.obj"
+      ]
+    }
+  ]
 }
