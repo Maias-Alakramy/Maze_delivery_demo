@@ -15,7 +15,7 @@
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
      id="namedview13648"
-     pagecolor="#000000"
+     pagecolor="#ffffff"
      bordercolor="#999999"
      borderopacity="1"
      inkscape:pageshadow="0"
@@ -24,15 +24,15 @@
      inkscape:document-units="px"
      showgrid="false"
      units="cm"
-     inkscape:zoom="0.90583671"
-     inkscape:cx="1981.0414"
-     inkscape:cy="2101.3721"
+     inkscape:zoom="0.16013082"
+     inkscape:cx="2213.8149"
+     inkscape:cy="1976.509"
      inkscape:window-width="1920"
      inkscape:window-height="991"
      inkscape:window-x="-9"
      inkscape:window-y="-9"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g3925"
+     inkscape:current-layer="layer1"
      width="100cm" />
   <defs
      id="defs13643" />
@@ -42,7 +42,7 @@
      id="layer1">
     <path
        id="path3880"
-       style="fill:none;stroke:#ffffff;stroke-width:70.3585;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#4d4d4d;stroke-width:70.3585;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 3406.3034 1903.7479 L 3406.3034 2015.5396 L 3706.6838 2015.5396 L 3706.6838 1157.8972 L 3262.133 1157.8972 L 3262.133 1381.1522 L 435.58136 1381.1522 "
        transform="scale(0.1)" />
     <g
