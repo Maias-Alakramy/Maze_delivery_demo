@@ -87,13 +87,13 @@ Youbot {
       type "infra-red"
     }
     DistanceSensor {
-      translation 0.28 0.025 -0.03
+      translation 0.29 0.025 -0.03
       rotation 0 1 0 1.57079
       name "IR_2"
       type "infra-red"
     }
     DistanceSensor {
-      translation 0.28 -0.025 -0.03
+      translation 0.29 -0.025 -0.03
       rotation 0 1 0 1.57079
       name "IR_1"
       type "infra-red"
