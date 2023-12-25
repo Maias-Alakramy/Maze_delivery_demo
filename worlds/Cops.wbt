@@ -81,17 +81,17 @@ Youbot {
   name "TheBot"
   bodySlot [
     DistanceSensor {
-      translation 0.29 0.01 -0.1
+      translation 0.29 0.01 -0.09
       name "DisSenFront_2"
       type "infra-red"
     }
     DistanceSensor {
-      translation 0.29 0 -0.1
+      translation 0.29 0 -0.09
       name "DisSenFront_1"
       type "infra-red"
     }
     DistanceSensor {
-      translation 0.29 -0.01 -0.1
+      translation 0.29 -0.01 -0.09
       name "DisSenFront_0"
       type "infra-red"
     }
