@@ -90,7 +90,7 @@ PROTO MazeCodegen [
               id: segments.length,
               x: (from[0] + to[0]) / 2,
               y: (from[1] + to[1]) / 2,
-              z: fields.height.value / 4 - segments.length * 1e-3,
+              z: fields.height.value / 4, // - (segments.length % 2) * 1e-3,
               length: (
                 Math.sqrt(Math.max(
                   sq(from[0] - to[0]) + sq(from[1] - to[1])
@@ -102,15 +102,24 @@ PROTO MazeCodegen [
                   to[1] - from[1],
                   to[0] - from[0],
               ) - Math.PI * .5,
+              first: start,
               close: to[2] ? start : undefined,
           });
       }
   }
   
+  const TO_DEGREE = 180 / Math.PI;
+  
+  function fixAngle(a) {
+    a = Math.abs(a);
+    a = a < Math.PI ? a : 2 * Math.PI - a;
+    return a < Math.PI * .5 ? a : Math.PI - a;
+  }
+  
   function fixJoint(p, n) {
-    const a = Math.abs(n.angle - p.angle) * .5;
-    const delta_p = Math.abs(Math.tan(a)) * p.width * .5;
-    const delta_n = Math.abs(Math.tan(a)) * n.width * .5;
+    const a = fixAngle(n.angle - p.angle) * .5;
+    const delta_p = Math.tan(a) * p.width * .5;
+    const delta_n = Math.tan(a) * n.width * .5;
     
     p.x = p.x - Math.sin(p.angle) * delta_p * .5;
     p.y = p.y + Math.cos(p.angle) * delta_p * .5;
@@ -123,6 +132,7 @@ PROTO MazeCodegen [
   
   for (let i = 1; i < segments.length; i++) {
     const p = segments[i-1], n = segments[i];
+    if (p.first !== n.first) continue; 
     fixJoint(p, n);
     if (n.close !== undefined) fixJoint(n, segments[n.close]);
   }
