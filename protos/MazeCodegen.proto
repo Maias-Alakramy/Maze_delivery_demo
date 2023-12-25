@@ -15,11 +15,7 @@ PROTO MazeCodegen [
 ]
 {
 %<
-  console.log('CODEGE RUNNING!');
-  console.log('PROJECT PATH: ', context.project_path);
-  console.log('MAP PATH: ', context.project_path + fields.url.value);
   const data = wbfile.readTextFile(context.project_path + fields.url.value);
-
 
   let targetWidth = fields.size.value.x, targetHeight = fields.size.value.y;
   let dataWidth = 1, dataHeight = 1;
@@ -42,7 +38,7 @@ PROTO MazeCodegen [
       pathBuffer = [];
   }
   
-  for (const line of data.split('\n')) {
+  for (const line of data.replace(/\r/g, '').split('\n')) {
       const sizeMatch = regex.size.exec(line);
       const colorMatch = regex.color.exec(line);
       const pathMatch = regex.path.test(line);
@@ -152,6 +148,8 @@ PROTO MazeCodegen [
     fixJoint(p, n);
     if (n.close !== undefined) fixJoint(n, segments[n.close]);
   }
+  
+  // console.log('TOTAL SEGMENTS: ', segments.length);
 >%
 
   Solid {
