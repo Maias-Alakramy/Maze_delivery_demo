@@ -26,12 +26,13 @@ PROTO MazeCodegen [
   
   const regex = {
       size: /^\\begin{pspicture}\(([\d.]+),([\d.]+)\)$/,
-      path: /^\\(?:newpath)$/,
-      close: /^\\(?:closepath)$/,
+      color: /^\\newrgbcolor{curcolor}{([\d.]+) ([\d.]+) ([\d.]+)}$/,
+      path: /^\\newpath$/,
+      close: /^\\closepath$/,
       vertex: /^\\(?:lineto|moveto)\(([\d.]+),([\d.]+)\)$/,
   }
   
-  let pathBuffer = [];
+  let pathBuffer = [], activeColor = [1, 1, 1];
   function newPath() {
       if (pathBuffer.length === 0) return;
       paths.push(pathBuffer);
@@ -40,6 +41,7 @@ PROTO MazeCodegen [
   
   for (const line of data.split('\n')) {
       const sizeMatch = regex.size.exec(line);
+      const colorMatch = regex.color.exec(line);
       const pathMatch = regex.path.test(line);
       const closeMatch = regex.close.test(line);
       const vertexMatch = regex.vertex.exec(line);
@@ -48,15 +50,25 @@ PROTO MazeCodegen [
           dataWidth = Number.parseFloat(sizeMatch[1]);
           dataHeight = Number.parseFloat(sizeMatch[2]);
       }
+      
+      if (colorMatch) {
+          activeColor = [
+              Number.parseFloat(colorMatch[1]),
+              Number.parseFloat(colorMatch[2]),
+              Number.parseFloat(colorMatch[3]),
+          ];
+      }
   
       if (pathMatch) newPath();
   
-      if (closeMatch) pathBuffer.push([pathBuffer[0][0], pathBuffer[0][1], true]);
+      if (closeMatch) pathBuffer.push([pathBuffer[0][0], pathBuffer[0][1], true, activeColor]);
   
       if (vertexMatch) {
           pathBuffer.push([
               Number.parseFloat(vertexMatch[1]),
               Number.parseFloat(vertexMatch[2]),
+              false,
+              activeColor,
           ]);
       }
   }
@@ -102,6 +114,7 @@ PROTO MazeCodegen [
                   to[1] - from[1],
                   to[0] - from[0],
               ) - Math.PI * .5,
+              color: from[3],
               first: start,
               close: to[2] ? start : undefined,
           });
@@ -149,6 +162,7 @@ PROTO MazeCodegen [
         translation %<= s.x >% %<= s.y >% %<= s.z >%
         rotation 0 0 1 %<= s.angle >%
         size %<= s.width >% %<= s.length >% %<= s.height >%
+        color %<= s.color.join(' ') >%
       }
       %< } >%
     ]
