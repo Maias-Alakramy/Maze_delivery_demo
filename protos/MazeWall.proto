@@ -47,31 +47,9 @@ PROTO MazeWall [
     name IS name
     children [
       DEF WALL_SHAPE Shape {
-        appearance PBRAppearance {
-          baseColor IS color
-          baseColorMap ImageTexture {
-            url [
-              "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/textures/formed_concrete/formed_concrete_base_color.jpg"
-            ]
-          }
-          roughnessMap ImageTexture {
-            url [
-              "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/textures/formed_concrete/formed_concrete_roughness.jpg"
-            ]
-          }
-          metalness 0
-          normalMap ImageTexture {
-            url [
-              "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/textures/formed_concrete/formed_concrete_normal.jpg"
-            ]
-          }
-          occlusionMap ImageTexture {
-            url [
-              "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/textures/formed_concrete/formed_concrete_occlusion.jpg"
-            ]
-          }
-          textureTransform TextureTransform {
-            scale %<= size.y * 7.5 >% 1
+        appearance Appearance {
+          material Material {
+            diffuseColor IS color
           }
         }
         geometry Box {
