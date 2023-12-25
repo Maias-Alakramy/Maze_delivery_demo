@@ -15,6 +15,9 @@ PROTO MazeCodegen [
 ]
 {
 %<
+  console.log('CODEGE RUNNING!');
+  console.log('PROJECT PATH: ', context.project_path);
+  console.log('MAP PATH: ', context.project_path + fields.url.value);
   const data = wbfile.readTextFile(context.project_path + fields.url.value);
 
 
