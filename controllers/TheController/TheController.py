@@ -28,6 +28,8 @@ class RobotController(Robot):
             self.sensors[index].enable(self.timestep)
 
         self.last_error = 0
+        self.all_errors = 0
+        self.all_times = 0
 
         self.movment_velocity = 14.81
 
@@ -75,7 +77,15 @@ class RobotController(Robot):
         Kd = 1
         D = Kd * error_rate
 
-        stearingVal = (P + D)/2
+        self.all_errors *= self.all_times
+        self.all_errors += error
+        self.all_times += 1
+        self.all_errors /= self.all_times
+        Ki = 1
+        I = Ki * self.all_errors
+
+
+        stearingVal = (P + D + I)/3
 
         self.stearing(stearingVal)
 
