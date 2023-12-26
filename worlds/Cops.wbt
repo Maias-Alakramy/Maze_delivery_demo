@@ -121,17 +121,26 @@ Youbot {
     }
   ]
 }
-Transform {
+Solid {
   translation -2.88107 -0.50831 0.001
   rotation 0 0 1 1.4398996938995747
-  scale 0.05 0.05 0.05
   children [
-    CadShape {
-      url [
-        "../meshes/Path/Path.obj"
-      ]
+    Shape {
+      appearance Appearance {
+        material Material {
+          ambientIntensity 0
+          diffuseColor 0 0 0
+          shininess 0
+        }
+      }
+      geometry Mesh {
+        url [
+          "../meshes/Path/Path.obj"
+        ]
+      }
     }
   ]
+  name "Path"
 }
 MazeCodegen {
   translation -14.5871 12.9344 0
