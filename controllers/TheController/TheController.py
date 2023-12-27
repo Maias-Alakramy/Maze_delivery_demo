@@ -27,6 +27,26 @@ class RobotController(Robot):
             self.sensors.append(self.getDevice("IR_" + str(index)))
             self.sensors[index].enable(self.timestep)
 
+        self.BackRightest = self.getDevice("BackRightest")
+        self.BackRightest.enable(self.timestep)
+
+        self.BackRight = self.getDevice("BackRight")
+        self.BackRight.enable(self.timestep)
+
+        self.Rightest = self.getDevice("Rightest")
+        self.Rightest.enable(self.timestep)
+
+        self.middle = self.getDevice("Middle")
+        self.middle.enable(self.timestep)
+
+        self.Leftest = self.getDevice("Leftest")
+        self.Leftest.enable(self.timestep)
+
+        self.BackLeft = self.getDevice("BackLeft")
+        self.BackLeft.enable(self.timestep)
+
+        self.BackLeftest = self.getDevice("BackLeftest")
+        self.BackLeftest.enable(self.timestep)
         self.last_error = 0
         self.all_errors = 0
         self.all_times = 0
