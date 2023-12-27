@@ -35,13 +35,18 @@ class RobotController(Robot):
 
         self.numOfVs = 0
 
+        self.currentState = "Line"
+
         self.step(self.timestep)
 
     def read_sensors_value(self):
         value = 0
+        once = False
         for index, sensor in enumerate(self.sensors):
-            if sensor.getValue() > 900 : value += self.sensors_coefficient[index]
-        return value/5
+            if sensor.getValue() > 900 :
+                value += self.sensors_coefficient[index]
+                once = True
+        return value/5,once
 
     def stearing(self,perc):
         self.velocities[1] -= perc
@@ -101,7 +106,11 @@ class RobotController(Robot):
 
     def line_follow(self):
         goal = 0
-        reading = self.read_sensors_value()
+        reading,found = self.read_sensors_value()
+
+        if not(found):
+            self.currentState="Maze"
+            return
 
         error = goal - reading
         Kp = 1
@@ -125,12 +134,7 @@ class RobotController(Robot):
 
         self.stearing(stearingVal)
 
-    def turnRight(self):
-        self.motors[1].setVelocity(self.movment_velocity)
-        self.motors[3].setVelocity(self.movment_velocity)
-        self.motors[0].setVelocity(-self.movment_velocity)
-        self.motors[2].setVelocity(-self.movment_velocity)
-    
+
     def resetState(self):
         self.velocities=[0 for i in range(len(self.velocities))]
         self.numOfVs = 0
@@ -138,8 +142,14 @@ class RobotController(Robot):
     def loop(self):
         while self.step(self.timestep) != -1:
             self.resetState()
+
+            if self.currentState=="Line":
+                self.line_follow()
             self.line_follow()
             self.forward()
+                self.forward()
+            elif self.currentState=="Maze":
+                self.sideRight()
 
             self.setVelocities()
             
