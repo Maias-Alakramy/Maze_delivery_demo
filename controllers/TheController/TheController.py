@@ -47,6 +47,9 @@ class RobotController(Robot):
 
         self.BackLeftest = self.getDevice("BackLeftest")
         self.BackLeftest.enable(self.timestep)
+
+        self.notBoxed=True
+
         self.last_error = 0
         self.all_errors = 0
         self.all_times = 0
@@ -155,6 +158,15 @@ class RobotController(Robot):
         self.stearing(stearingVal)
 
 
+    def checkBox(self):
+        value = 0
+        for index, sensor in enumerate(self.front_dist_sen):
+            if sensor.getValue() < 900 :
+                value += self.sensors_coefficient[index]
+        if abs(value/5) > 0.1 :
+            self.notBoxed=False
+            self.currentState = "Boxing"
+
     def resetState(self):
         self.velocities=[0 for i in range(len(self.velocities))]
         self.numOfVs = 0
@@ -166,6 +178,8 @@ class RobotController(Robot):
             if self.currentState=="Line":
                 self.line_follow()
                 self.forward()
+                if self.notBoxed:
+                    self.checkBox()
             elif self.currentState=="Maze":
                 self.sideRight()
 
