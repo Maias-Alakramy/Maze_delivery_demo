@@ -176,6 +176,17 @@ class RobotController(Robot):
         if ((side=="Right" and self.BackRight.getValue() < 900) or 
             (side=="Left" and self.BackLeft.getValue() < 900)):
                 self.currentState="unBoxing"
+    
+    def DontHit(self,perc,side="Right"):
+        if ((side=="Right" and self.BackRightest.getValue() < 900) or 
+            (side=="Left" and self.BackLeftest.getValue() < 900)):
+                self.forward(perc)
+
+    def checkLine(self):
+        _,found = self.read_sensors_value()
+        if found:
+            self.currentState = "Line"
+
     def resetState(self):
         self.velocities=[0 for i in range(len(self.velocities))]
         self.numOfVs = 0
@@ -195,6 +206,11 @@ class RobotController(Robot):
             elif self.currentState=="ForwardOnly":
                 self.forward()
                 self.checkPassBox()
+            elif self.currentState=="unBoxing":
+                self.DontHit(0.5)
+                self.sideRight(0.5)
+                self.turnRight(0.5)
+                self.checkLine()
             elif self.currentState=="Maze":
                 self.sideRight()
 
