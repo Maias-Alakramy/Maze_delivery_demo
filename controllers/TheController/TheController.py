@@ -133,7 +133,7 @@ class RobotController(Robot):
             return
 
         error = goal - reading
-        Kp = 1
+        Kp = 3
         P = Kp * error
 
 
@@ -150,7 +150,7 @@ class RobotController(Robot):
         I = Ki * self.all_errors
 
 
-        stearingVal = (P + D + I)/3
+        stearingVal = (P + D + I)/(Kp+Kd+Ki)
 
         self.stearing(stearingVal)
 
