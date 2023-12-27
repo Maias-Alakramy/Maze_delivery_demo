@@ -56,46 +56,46 @@ class RobotController(Robot):
 
         self.numOfVs += 1
     
-    def forward(self):
-        self.velocities[1] += 1
-        self.velocities[3] += 1
-        self.velocities[0] += 1
-        self.velocities[2] += 1
+    def forward(self,perc=1):
+        self.velocities[1] += perc
+        self.velocities[3] += perc
+        self.velocities[0] += perc
+        self.velocities[2] += perc
         
         self.numOfVs += 1
 
-    def turnRight(self):
-        self.velocities[1] += 1
-        self.velocities[3] += 1
-        self.velocities[0] -= 1
-        self.velocities[2] -= 1
+    def turnRight(self,perc=1):
+        self.velocities[1] += perc
+        self.velocities[3] += perc
+        self.velocities[0] -= perc
+        self.velocities[2] -= perc
         
         self.numOfVs += 1
 
     
-    def turnLeft(self):
-        self.velocities[1] -= 1
-        self.velocities[3] -= 1
-        self.velocities[0] += 1
-        self.velocities[2] += 1
+    def turnLeft(self,perc=1):
+        self.velocities[1] -= perc
+        self.velocities[3] -= perc
+        self.velocities[0] += perc
+        self.velocities[2] += perc
         
         self.numOfVs += 1
 
 
-    def sideRight(self):
-        self.velocities[1] += 1
-        self.velocities[3] -= 1
-        self.velocities[0] -= 1
-        self.velocities[2] += 1
+    def sideRight(self,perc=1):
+        self.velocities[1] += perc
+        self.velocities[3] -= perc
+        self.velocities[0] -= perc
+        self.velocities[2] += perc
         
         self.numOfVs += 1
 
 
-    def sideLeft(self):
-        self.velocities[1] -= 1
-        self.velocities[3] += 1
-        self.velocities[0] += 1
-        self.velocities[2] -= 1
+    def sideLeft(self,perc=1):
+        self.velocities[1] -= perc
+        self.velocities[3] += perc
+        self.velocities[0] += perc
+        self.velocities[2] -= perc
         
         self.numOfVs += 1
 
