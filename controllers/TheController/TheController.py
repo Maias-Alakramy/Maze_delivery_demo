@@ -145,8 +145,6 @@ class RobotController(Robot):
 
             if self.currentState=="Line":
                 self.line_follow()
-            self.line_follow()
-            self.forward()
                 self.forward()
             elif self.currentState=="Maze":
                 self.sideRight()
