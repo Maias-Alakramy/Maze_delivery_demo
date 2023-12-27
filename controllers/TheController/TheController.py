@@ -171,6 +171,11 @@ class RobotController(Robot):
         if ((side=="Right" and self.Rightest.getValue() < 900) or 
             (side=="Left" and self.Leftest.getValue() < 900)):
                 self.currentState="ForwardOnly"
+    
+    def checkPassBox(self,side="Right"):
+        if ((side=="Right" and self.BackRight.getValue() < 900) or 
+            (side=="Left" and self.BackLeft.getValue() < 900)):
+                self.currentState="unBoxing"
     def resetState(self):
         self.velocities=[0 for i in range(len(self.velocities))]
         self.numOfVs = 0
@@ -187,6 +192,9 @@ class RobotController(Robot):
             elif self.currentState=="Boxing":
                 self.sideLeft(0.5)
                 self.checkAvoidBox()
+            elif self.currentState=="ForwardOnly":
+                self.forward()
+                self.checkPassBox()
             elif self.currentState=="Maze":
                 self.sideRight()
 
