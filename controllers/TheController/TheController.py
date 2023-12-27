@@ -14,15 +14,15 @@ class RobotController(Robot):
             self.motors[i].setVelocity(0)
             self.velocities.append(0)
 
-        self.front_dist_sen_index = [0,1,2]
+        self.sensors_index = [0,1,2,3]
+        self.sensors_coefficient = [3, 2, -2, -3]
+
         self.front_dist_sen = []
-        for index in self.front_dist_sen_index:
+        for index in self.sensors_index:
             self.front_dist_sen.append(self.getDevice("DisSenFront_" + str(index)))
             self.front_dist_sen[index].enable(self.timestep)
 
-        self.sensors_index = [0,1,2,3]
         self.sensors = []
-        self.sensors_coefficient = [3, 2, -2, -3]
         for index in self.sensors_index:
             self.sensors.append(self.getDevice("IR_" + str(index)))
             self.sensors[index].enable(self.timestep)
