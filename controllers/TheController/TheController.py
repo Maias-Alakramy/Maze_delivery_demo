@@ -33,13 +33,9 @@ class RobotController(Robot):
 
         self.movment_velocity = 14.81
 
-        self.step(self.timestep)
+        self.numOfVs = 0
 
-    def read_dist_sensors_value(self):
-        value = 0
-        for index, sensor in enumerate(self.front_dist_sen):
-            if sensor.getValue() > 200 : value += self.sensors_coefficient[index]
-        return value
+        self.step(self.timestep)
 
     def read_sensors_value(self):
         value = 0
@@ -48,20 +44,60 @@ class RobotController(Robot):
         return value/5
 
     def stearing(self,perc):
-        self.velocities[1] += -perc
-        self.velocities[3] += -perc
+        self.velocities[1] -= perc
+        self.velocities[3] -= perc
         self.velocities[0] += perc
         self.velocities[2] += perc
+
+        self.numOfVs += 1
     
     def forward(self):
         self.velocities[1] += 1
         self.velocities[3] += 1
         self.velocities[0] += 1
         self.velocities[2] += 1
+        
+        self.numOfVs += 1
+
+    def turnRight(self):
+        self.velocities[1] += 1
+        self.velocities[3] += 1
+        self.velocities[0] -= 1
+        self.velocities[2] -= 1
+        
+        self.numOfVs += 1
+
+    
+    def turnLeft(self):
+        self.velocities[1] -= 1
+        self.velocities[3] -= 1
+        self.velocities[0] += 1
+        self.velocities[2] += 1
+        
+        self.numOfVs += 1
+
+
+    def sideRight(self):
+        self.velocities[1] += 1
+        self.velocities[3] -= 1
+        self.velocities[0] -= 1
+        self.velocities[2] += 1
+        
+        self.numOfVs += 1
+
+
+    def sideLeft(self):
+        self.velocities[1] -= 1
+        self.velocities[3] += 1
+        self.velocities[0] += 1
+        self.velocities[2] -= 1
+        
+        self.numOfVs += 1
 
     def setVelocities(self):
+        if self.numOfVs == 0: return
         for i in range(len(self.motors)): 
-            self.motors[i].setVelocity(self.movment_velocity*(self.velocities[i]/2))
+            self.motors[i].setVelocity(self.movment_velocity*(self.velocities[i]/self.numOfVs))
 
     def line_follow(self):
         goal = 0
@@ -95,15 +131,13 @@ class RobotController(Robot):
         self.motors[0].setVelocity(-self.movment_velocity)
         self.motors[2].setVelocity(-self.movment_velocity)
     
-    def turnLeft(self):
-        self.motors[1].setVelocity(-self.movment_velocity)
-        self.motors[3].setVelocity(-self.movment_velocity)
-        self.motors[0].setVelocity(self.movment_velocity)
-        self.motors[2].setVelocity(self.movment_velocity)
+    def resetState(self):
+        self.velocities=[0 for i in range(len(self.velocities))]
+        self.numOfVs = 0
 
     def loop(self):
         while self.step(self.timestep) != -1:
-            self.velocities=[0 for i in range(len(self.velocities))]
+            self.resetState()
             self.line_follow()
             self.forward()
 
