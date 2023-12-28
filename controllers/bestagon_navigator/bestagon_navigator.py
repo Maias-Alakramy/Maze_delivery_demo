@@ -18,20 +18,27 @@ CONTROL_TIMESTEP = TIMESTEP * 4
 
 
 def sleep(time: float) -> None:
-    robot.step(time * 1000)
+    robot.step(int(time * 1000))
 
 
-motors_driver = MecanumDriver(robot)
+wheels_driver = MecanumDriver(robot)
 
-motors_driver.normalized_motors_velocity = [1, 0, 0, 0]
-sleep(1)
-motors_driver.normalized_motors_velocity = [0, 1, 0, 0]
-sleep(1)
+# motors_driver.normalized_motors_velocity = [1, 0, 0, 0]
+# sleep(1)
+# motors_driver.normalized_motors_velocity = [0, 1, 0, 0]
+# sleep(1)
+# motors_driver.stop()
 
-motors_driver.stop()
+wheels_driver.move('left')
+sleep(.3)
 
+angle = .5 * np.pi
 
 while robot.step(CONTROL_TIMESTEP) != -1:
-    pass
+    dt = CONTROL_TIMESTEP / 1000
+    angle += dt * np.pi * .5
+    angle %= np.pi * 2
+
+    wheels_driver.move(angle, turn=np.pi*.1)
 
 # Enter here exit cleanup code.
