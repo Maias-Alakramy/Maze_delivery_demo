@@ -1,32 +1,37 @@
 """bestagon_navigator controller."""
 
-# You may need to import some classes of the controller module. Ex:
-#  from controller import Robot, Motor, DistanceSensor
+import numpy as np
 from controller import Robot
 
-# create the Robot instance.
+from typing import *
+from numpy.typing import NDArray
+
+from mecanum_driver import MecanumDriver
+
 robot = Robot()
 
-# get the time step of the current world.
-timestep = int(robot.getBasicTimeStep())
+TIMESTEP = int(robot.getBasicTimeStep())
+CONTROL_TIMESTEP = TIMESTEP * 4
 
-# You should insert a getDevice-like function in order to get the
-# instance of a device of the robot. Something like:
-#  motor = robot.getDevice('motorname')
-#  ds = robot.getDevice('dsname')
-#  ds.enable(timestep)
+# for name, device in robot.devices.items():
+#     print(name, type(device))
 
-# Main loop:
-# - perform simulation steps until Webots is stopping the controller
-while robot.step(timestep) != -1:
-    # Read the sensors:
-    # Enter here functions to read sensor data, like:
-    #  val = ds.getValue()
 
-    # Process sensor data here.
+def sleep(time: float) -> None:
+    robot.step(time * 1000)
 
-    # Enter here functions to send actuator commands, like:
-    #  motor.setPosition(10.0)
+
+motors_driver = MecanumDriver(robot)
+
+motors_driver.normalized_motors_velocity = [1, 0, 0, 0]
+sleep(1)
+motors_driver.normalized_motors_velocity = [0, 1, 0, 0]
+sleep(1)
+
+motors_driver.stop()
+
+
+while robot.step(CONTROL_TIMESTEP) != -1:
     pass
 
 # Enter here exit cleanup code.
