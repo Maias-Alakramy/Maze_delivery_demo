@@ -5,6 +5,7 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "../protos/MazeCodegen.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Asphalt.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/Youbot.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/KukaBox.proto"
 
 WorldInfo {
   title "Hexagons are Bestagons!"
@@ -34,8 +35,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.1542485114582023 0.8476612115873926 0.5076198056450539 0.6884115918049142
-  position -1.7292031133690062 -6.1955398982128616 1.4454473351986037
+  orientation -0.1110089983917883 -0.014493675266996232 0.9937137091000138 3.399635828858494
+  position 0.978597084754325 -5.263649126913825 0.18422336977534579
   follow "Roberto"
 }
 TexturedBackground {
@@ -67,4 +68,30 @@ Youbot {
   translation 0 -5.5 0.12
   name "Roberto"
   controller "bestagon_navigator"
+  bodySlot [
+    Camera {
+      translation 0.29 0 -0.09
+      name "front-box-cam"
+      fieldOfView 0.1
+      width 1
+      height 1
+      near 0.02
+      far 0.3
+    }
+    Lidar {
+      translation 0.11 0 -0.09
+      name "front-box-lidar"
+      horizontalResolution 32
+      fieldOfView 1
+      numberOfLayers 1
+      near 0.2
+      minRange 0.2
+      maxRange 0.5
+      resolution 0.001
+    }
+  ]
+}
+KukaBox {
+  translation 0.52 -5.5 0.03
+  color 1 0 0
 }
