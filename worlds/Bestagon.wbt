@@ -34,10 +34,9 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.5754161189814868 0.5754161353340281 0.5811992439891287 2.088636151886481
-  position 0.1035201365489385 -0.052196309051225104 5.118402468868283
+  orientation -0.1542485114582023 0.8476612115873926 0.5076198056450539 0.6884115918049142
+  position -1.7292031133690062 -6.1955398982128616 1.4454473351986037
   follow "Roberto"
-  followType "None"
 }
 TexturedBackground {
   texture "noon_building_overcast"
@@ -65,6 +64,7 @@ MazeCodegen {
   height 0.5
 }
 Youbot {
+  translation 0 -5.5 0.12
   name "Roberto"
   controller "bestagon_navigator"
 }
