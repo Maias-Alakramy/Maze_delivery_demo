@@ -87,7 +87,7 @@ Youbot {
       name "PerfectRight"
       lookupTable [
         0 0 0
-        0.5 1000 0
+        0.8 1000 0
       ]
     }
     DistanceSensor {
@@ -96,7 +96,7 @@ Youbot {
       name "PerfectLeft"
       lookupTable [
         0 0 0
-        0.5 1000 0
+        0.8 1000 0
       ]
     }
     DistanceSensor {

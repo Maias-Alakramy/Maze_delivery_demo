@@ -1,6 +1,7 @@
 from controller import Robot
 
-import numpy as np
+from numpy import clip
+
 # motor are [Right_Up,Left_Up,Right_Down,Left_Down]
 
 class RobotController(Robot):
@@ -141,8 +142,10 @@ class RobotController(Robot):
 
     def setVelocities(self):
         if self.numOfVs == 0: return
-        for i in range(len(self.motors)): 
-            self.motors[i].setVelocity(np.clip(self.movment_velocity*(self.velocities[i]/self.numOfVs),-self.movment_velocity,self.movment_velocity))
+        for i in range(len(self.motors)):
+            self.motors[i].setVelocity(
+                clip(self.movment_velocity * (self.velocities[i] / self.numOfVs), -self.movment_velocity,
+                     self.movment_velocity))
 
     def line_follow(self):
         goal = 0
