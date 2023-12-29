@@ -1,5 +1,6 @@
 from controller import Robot
 
+import numpy as np
 # motor are [Right_Up,Left_Up,Right_Down,Left_Down]
 
 class RobotController(Robot):
@@ -48,6 +49,16 @@ class RobotController(Robot):
         self.BackLeftest = self.getDevice("BackLeftest")
         self.BackLeftest.enable(self.timestep)
 
+        self.PerfectLeft=self.getDevice('PerfectLeft')
+        self.PerfectLeft.enable(self.timestep)
+
+        self.PerfectRight=self.getDevice('PerfectRight')
+        self.PerfectRight.enable(self.timestep)
+
+        self.last_side_error=0
+        self.all_side_errors=0
+        self.all_side_times=0
+
         self.notBoxed=True
 
         self.last_error = 0
@@ -70,6 +81,12 @@ class RobotController(Robot):
                 value += self.sensors_coefficient[index]
                 once = True
         return value/5,once
+
+    def read_side_sensors_value(self):
+        # TODO incase one of the sensors read infinite it should use a decision array to turn
+        coeff=0.01
+        return (self.PerfectRight.getValue()-self.PerfectLeft.getValue())*coeff,True
+
 
     def stearing(self,perc):
         self.velocities[1] -= perc
@@ -125,7 +142,7 @@ class RobotController(Robot):
     def setVelocities(self):
         if self.numOfVs == 0: return
         for i in range(len(self.motors)): 
-            self.motors[i].setVelocity(self.movment_velocity*(self.velocities[i]/self.numOfVs))
+            self.motors[i].setVelocity(np.clip(self.movment_velocity*(self.velocities[i]/self.numOfVs),-self.movment_velocity,self.movment_velocity))
 
     def line_follow(self):
         goal = 0
@@ -157,6 +174,32 @@ class RobotController(Robot):
 
         self.stearing(stearingVal)
 
+    def wall_follow(self):
+        goal=0
+        reading,found=self.read_side_sensors_value()
+
+        # TODO if not found
+
+        error=goal-reading
+        Kp=3
+        P=Kp*error
+
+        error_rate=error-self.last_side_error
+        self.last_side_error=error
+
+        Kd=1
+        D=Kd*error_rate
+
+        self.all_side_errors*=self.all_side_times
+        self.all_side_errors+=error
+        self.all_side_times+=1
+        self.all_side_errors/=self.all_side_times
+
+        Ki=1
+        I=Ki*self.all_side_errors
+        stearingVal=(P+D+I)/(Kp+Kd+Ki)
+
+        self.stearing(stearingVal)
 
     def checkBox(self):
         value = 0
@@ -212,7 +255,8 @@ class RobotController(Robot):
                 self.turnRight(0.5)
                 self.checkLine()
             elif self.currentState=="Maze":
-                self.sideRight()
+                self.wall_follow()
+                self.forward()
 
             self.setVelocities()
             
