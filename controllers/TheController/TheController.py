@@ -218,18 +218,18 @@ class RobotController(Robot):
         reference_rotation = None
 
         if decision == 'l':
-            goal_rotation = reference_rotation + math.pi / 2
+            goal_rotation = math.pi / 2
             sign = 1
         elif decision == 'r':
-            goal_rotation = reference_rotation - math.pi / 2
+            goal_rotation = math.pi / 2
             sign = -1
         elif decision == 'b':
-            goal_rotation = reference_rotation + math.pi
+            goal_rotation = math.pi
             sign = 1
 
         current_rotation = None  # This should not be here but for IDE sake
 
-        while current_rotation - reference_rotation < goal_rotation:
+        while abs(current_rotation - reference_rotation) < goal_rotation:
             self.stearing(0.1 * sign)
             yield
 
