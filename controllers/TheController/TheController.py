@@ -1,3 +1,5 @@
+import math
+
 from controller import Robot
 
 from numpy import clip
@@ -7,6 +9,10 @@ from numpy import clip
 class RobotController(Robot):
     def __init__(self):
         Robot.__init__(self)
+
+        # end is only there to prevent out of index exception
+        self.decisionTree = ['r', 'l', 'end']
+
         self.timestep = int(self.getBasicTimeStep())
         self.motors=[]
         self.velocities=[]
@@ -84,9 +90,9 @@ class RobotController(Robot):
         return value/5,once
 
     def read_side_sensors_value(self):
-        # TODO incase one of the sensors read infinite it should use a decision array to turn
         coeff=0.01
-        return (self.PerfectRight.getValue()-self.PerfectLeft.getValue())*coeff,True
+        return (
+                           self.PerfectRight.getValue() - self.PerfectLeft.getValue()) * coeff, self.PerfectRight.getValue() != 1000 and self.PerfectLeft.getValue() != 1000
 
 
     def stearing(self,perc):
@@ -181,7 +187,8 @@ class RobotController(Robot):
         goal=0
         reading,found=self.read_side_sensors_value()
 
-        # TODO if not found
+        if not found:
+            self.currentState = "DecisionTree"
 
         error=goal-reading
         Kp=3
@@ -203,6 +210,35 @@ class RobotController(Robot):
         stearingVal=(P+D+I)/(Kp+Kd+Ki)
 
         self.stearing(stearingVal)
+
+    def decision_tree(self):
+        decision = self.decisionTree[0]
+        self.decisionTree = self.decisionTree[1:]
+
+        reference_rotation = None
+
+        if decision == 'l':
+            goal_rotation = reference_rotation + math.pi / 2
+            sign = 1
+        elif decision == 'r':
+            goal_rotation = reference_rotation - math.pi / 2
+            sign = -1
+        elif decision == 'b':
+            goal_rotation = reference_rotation + math.pi
+            sign = 1
+
+        current_rotation = None  # This should not be here but for IDE sake
+
+        while current_rotation - reference_rotation < goal_rotation:
+            self.stearing(0.1 * sign)
+            yield
+
+        # Both sensors are reaching their full distance without an obstacle
+        if self.read_side_sensors_value() == 0:
+            self.forward()
+        else:
+            self.currentState = "Maze"
+
 
     def checkBox(self):
         value = 0
@@ -260,6 +296,9 @@ class RobotController(Robot):
             elif self.currentState=="Maze":
                 self.wall_follow()
                 self.forward()
+            elif self.currentState == "DecisionTree":
+                # self.decision_tree() TODO NEEDS GETTING CURRENT ROTATION
+                pass
 
             self.setVelocities()
             
