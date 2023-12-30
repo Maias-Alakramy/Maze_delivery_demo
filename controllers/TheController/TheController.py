@@ -234,8 +234,7 @@ class RobotController(Robot):
                 self.goal_rotation = 180
                 self.sign = 1
             elif self.decision == 'f':
-                self.goal_rotation = 0
-                self.sign = 0
+                return 'f'
             elif self.decision == 'ul':
                 self.goal_rotation = 180
                 self.sign = 1
@@ -243,27 +242,19 @@ class RobotController(Robot):
             return 't'
 
         if phase == 't':
-            if self.decision == 'f':
-                reading, found = self.read_side_sensors_value()
-                if not found:
-                    return 't'
-                else:
-                    return 'f'
-            else:
-                if abs(self.get_compass_bearing() - self.reference_rotation) < self.goal_rotation:
-                    self.forward()
-                    self.stearing(0.5 * self.sign)
-                    return 't'
-                return 'f'
+            if abs(self.get_compass_bearing() - self.reference_rotation) < self.goal_rotation:
+                self.forward()
+                self.stearing(0.5 * self.sign)
+                return 't'
+            return 'f'
 
         if phase == 'f':
-            # Both sensors are reaching their full distance without an obstacle
-            if self.read_side_sensors_value() == 0:
-                self.forward()
-                return 'f'
-            else:
+            self.forward()
+            if self.read_side_sensors_value()[1]:
                 self.currentState = "Maze"
                 return 's'
+            else:
+                return 'f'
 
     def get_compass_bearing(self):
         north = self.compass.getValues()
