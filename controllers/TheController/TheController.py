@@ -107,8 +107,8 @@ class RobotController(Robot):
 
     def read_side_sensors_value(self):
         coeff=0.01
-        return (
-                           self.PerfectRight.getValue() - self.PerfectLeft.getValue()) * coeff, self.PerfectRight.getValue() != 1000 and self.PerfectLeft.getValue() != 1000
+        return (self.PerfectRight.getValue() - self.PerfectLeft.getValue()) * coeff ,\
+         self.PerfectRight.getValue() != 1000 and self.PerfectLeft.getValue() != 1000
 
 
     def stearing(self,perc):
