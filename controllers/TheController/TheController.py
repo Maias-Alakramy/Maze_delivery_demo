@@ -1,10 +1,18 @@
+import math
+
 from controller import Robot
+
+from numpy import clip
 
 # motor are [Right_Up,Left_Up,Right_Down,Left_Down]
 
 class RobotController(Robot):
     def __init__(self):
         Robot.__init__(self)
+
+        # end is only there to prevent out of index exception
+        self.decisionTree = ['r', 'l', 'end']
+
         self.timestep = int(self.getBasicTimeStep())
         self.motors=[]
         self.velocities=[]
@@ -27,6 +35,9 @@ class RobotController(Robot):
             self.sensors.append(self.getDevice("IR_" + str(index)))
             self.sensors[index].enable(self.timestep)
 
+        self.inUn = self.getDevice("inUn")
+        self.inUn.enable(self.timestep)
+        
         self.BackRightest = self.getDevice("BackRightest")
         self.BackRightest.enable(self.timestep)
 
@@ -47,6 +58,16 @@ class RobotController(Robot):
 
         self.BackLeftest = self.getDevice("BackLeftest")
         self.BackLeftest.enable(self.timestep)
+
+        self.PerfectLeft=self.getDevice('PerfectLeft')
+        self.PerfectLeft.enable(self.timestep)
+
+        self.PerfectRight=self.getDevice('PerfectRight')
+        self.PerfectRight.enable(self.timestep)
+
+        self.last_side_error=0
+        self.all_side_errors=0
+        self.all_side_times=0
 
         self.notBoxed=True
 
@@ -70,6 +91,12 @@ class RobotController(Robot):
                 value += self.sensors_coefficient[index]
                 once = True
         return value/5,once
+
+    def read_side_sensors_value(self):
+        coeff=0.01
+        return (
+                           self.PerfectRight.getValue() - self.PerfectLeft.getValue()) * coeff, self.PerfectRight.getValue() != 1000 and self.PerfectLeft.getValue() != 1000
+
 
     def stearing(self,perc):
         self.velocities[1] -= perc
@@ -124,8 +151,10 @@ class RobotController(Robot):
 
     def setVelocities(self):
         if self.numOfVs == 0: return
-        for i in range(len(self.motors)): 
-            self.motors[i].setVelocity(self.movment_velocity*(self.velocities[i]/self.numOfVs))
+        for i in range(len(self.motors)):
+            self.motors[i].setVelocity(
+                clip(self.movment_velocity * (self.velocities[i] / self.numOfVs), -self.movment_velocity,
+                     self.movment_velocity))
 
     def line_follow(self):
         goal = 0
@@ -156,6 +185,62 @@ class RobotController(Robot):
         stearingVal = (P + D + I)/(Kp+Kd+Ki)
 
         self.stearing(stearingVal)
+
+    def wall_follow(self):
+        goal=0
+        reading,found=self.read_side_sensors_value()
+
+        if not found:
+            self.currentState = "DecisionTree"
+
+        error=goal-reading
+        Kp=3
+        P=Kp*error
+
+        error_rate=error-self.last_side_error
+        self.last_side_error=error
+
+        Kd=1
+        D=Kd*error_rate
+
+        self.all_side_errors*=self.all_side_times
+        self.all_side_errors+=error
+        self.all_side_times+=1
+        self.all_side_errors/=self.all_side_times
+
+        Ki=1
+        I=Ki*self.all_side_errors
+        stearingVal=(P+D+I)/(Kp+Kd+Ki)
+
+        self.stearing(stearingVal)
+
+    def decision_tree(self):
+        decision = self.decisionTree[0]
+        self.decisionTree = self.decisionTree[1:]
+
+        reference_rotation = None
+
+        if decision == 'l':
+            goal_rotation = math.pi / 2
+            sign = 1
+        elif decision == 'r':
+            goal_rotation = math.pi / 2
+            sign = -1
+        elif decision == 'b':
+            goal_rotation = math.pi
+            sign = 1
+
+        current_rotation = None  # This should not be here but for IDE sake
+
+        while abs(current_rotation - reference_rotation) < goal_rotation:
+            self.stearing(0.1 * sign)
+            yield
+
+        # Both sensors are reaching their full distance without an obstacle
+        if self.read_side_sensors_value() == 0:
+            self.forward()
+        else:
+            self.currentState = "Maze"
 
 
     def checkBox(self):
@@ -212,7 +297,16 @@ class RobotController(Robot):
                 self.turnRight(0.5)
                 self.checkLine()
             elif self.currentState=="Maze":
-                self.sideRight()
+                self.wall_follow()
+                self.forward()
+            elif self.currentState == "DecisionTree":
+                # self.decision_tree() TODO NEEDS GETTING CURRENT ROTATION
+                pass
+            
+            # WIP
+            rot = self.inUn.getQuaternion()
+            my_formatted_list = [ '%.10f' % elem for elem in rot ]
+            print(my_formatted_list)
 
             self.setVelocities()
             
