@@ -138,7 +138,7 @@ class RobotController(Robot):
             
             self.numOfVs += 1
 
-        if (abs(self.getRot()-self.refRot)[2] + 1e-8 > (math.pi*deg/180)):
+        if (deg != None and abs(self.getRot()-self.refRot)[2] + 1e-8 > (math.pi*deg/180)):
             self.currentState=self.prevState
             print("Done")
 
