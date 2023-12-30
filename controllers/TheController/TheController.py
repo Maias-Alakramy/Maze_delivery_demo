@@ -39,6 +39,9 @@ class RobotController(Robot):
 
         self.inUn = self.getDevice("inUn")
         self.inUn.enable(self.timestep)
+
+        self.compass = self.getDevice('compass')
+        self.compass.enable(self.timestep)
         
         self.BackRightest = self.getDevice("BackRightest")
         self.BackRightest.enable(self.timestep)
@@ -234,35 +237,51 @@ class RobotController(Robot):
 
         self.stearing(stearingVal)
 
-    def decision_tree(self):
-        decision = self.decisionTree[0]
-        self.decisionTree = self.decisionTree[1:]
+    # phase can be s,t,f
+    def decision_tree(self, phase):
+        if phase == 's':
+            self.decision = self.decisionTree[0]
+            self.decisionTree = self.decisionTree[1:]
 
-        reference_rotation = None
+            self.reference_rotation = self.get_compass_bearing()
+            self.current_rotation = self.reference_rotation
 
-        if decision == 'l':
-            goal_rotation = math.pi / 2
-            sign = 1
-        elif decision == 'r':
-            goal_rotation = math.pi / 2
-            sign = -1
-        elif decision == 'b':
-            goal_rotation = math.pi
-            sign = 1
+            if self.decision == 'l':
+                self.goal_rotation = 90
+                self.sign = 1
+            elif self.decision == 'r':
+                self.goal_rotation = 90
+                self.sign = -1
+            elif self.decision == 'b':
+                self.goal_rotation = 180
+                self.sign = 1
 
-        current_rotation = None  # This should not be here but for IDE sake
+            return 't'
 
-        while abs(current_rotation - reference_rotation) < goal_rotation:
-            self.stearing(0.1 * sign)
-            yield
+        if phase == 't':
+            if abs(self.current_rotation - self.reference_rotation) < self.goal_rotation:
+                self.current_rotation += abs(self.get_compass_bearing() - self.current_rotation)
+                print(self.current_rotation)
+                self.stearing(0.5 * self.sign)
+                return 't'
+            return 'f'
 
-        # Both sensors are reaching their full distance without an obstacle
-        if self.read_side_sensors_value() == 0:
-            self.forward()
-        else:
-            self.currentState = "Maze"
+        if phase == 'f':
+            # Both sensors are reaching their full distance without an obstacle
+            if self.read_side_sensors_value() == 0:
+                self.forward()
+                return 'f'
+            else:
+                self.currentState = "Maze"
+                return 's'
 
-
+    def get_compass_bearing(self):
+        north = self.compass.getValues()
+        rad = math.atan2(north[1], north[0])
+        bearing = (rad - 1.5708) / math.pi * 180
+        if bearing < 0:
+            bearing += 360
+        return bearing
     def checkBox(self):
         value = 0
         for index, sensor in enumerate(self.front_dist_sen):
@@ -297,33 +316,33 @@ class RobotController(Robot):
         self.numOfVs = 0
 
     def loop(self):
+        phase = 's'
         while self.step(self.timestep) != -1:
             self.resetState()
 
-            self.turnRight(1,90)
+            # self.turnRight(1,90)
 
-            # if self.currentState=="Line":
-            #     self.line_follow()
-            #     self.forward()
-            #     if self.notBoxed:
-            #         self.checkBox()
-            # elif self.currentState=="Boxing":
-            #     self.sideLeft(0.5)
-            #     self.checkAvoidBox()
-            # elif self.currentState=="ForwardOnly":
-            #     self.forward()
-            #     self.checkPassBox()
-            # elif self.currentState=="unBoxing":
-            #     self.DontHit(0.5)
-            #     self.sideRight(0.5)
-            #     self.turnRight(0.5)
-            #     self.checkLine()
-            # elif self.currentState=="Maze":
-            #     self.wall_follow()
-            #     self.forward()
-            # elif self.currentState == "DecisionTree":
-            #     # self.decision_tree() TODO NEEDS GETTING CURRENT ROTATION
-            #     pass
+            if self.currentState == "Line":
+                self.line_follow()
+                self.forward()
+                if self.notBoxed:
+                    self.checkBox()
+            elif self.currentState == "Boxing":
+                self.sideLeft(0.5)
+                self.checkAvoidBox()
+            elif self.currentState == "ForwardOnly":
+                self.forward()
+                self.checkPassBox()
+            elif self.currentState == "unBoxing":
+                self.DontHit(0.5)
+                self.sideRight(0.5)
+                self.turnRight(0.5)
+                self.checkLine()
+            elif self.currentState == "Maze":
+                self.wall_follow()
+                self.forward()
+            elif self.currentState == "DecisionTree":
+                phase = self.decision_tree(phase)
 
             self.setVelocities()
             
