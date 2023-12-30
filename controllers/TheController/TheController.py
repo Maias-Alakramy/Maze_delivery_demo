@@ -13,7 +13,7 @@ class RobotController(Robot):
         Robot.__init__(self)
 
         # end is only there to prevent out of index exception
-        self.decisionTree = ['r', 'l', 'end']
+        self.decisionTree = ['r', 'l', 'f', 'l', 'l', 'l', 'r', 'r', 'ul', 'l', 'l', 'r', 'f', 'end']
 
         self.timestep = int(self.getBasicTimeStep())
         self.motors=[]
@@ -233,16 +233,28 @@ class RobotController(Robot):
             elif self.decision == 'b':
                 self.goal_rotation = 180
                 self.sign = 1
+            elif self.decision == 'f':
+                self.goal_rotation = 0
+                self.sign = 0
+            elif self.decision == 'ul':
+                self.goal_rotation = 180
+                self.sign = 1
 
             return 't'
 
         if phase == 't':
-            if abs(self.current_rotation - self.reference_rotation) < self.goal_rotation:
-                self.current_rotation += abs(self.get_compass_bearing() - self.current_rotation)
-                print(self.current_rotation)
-                self.stearing(0.5 * self.sign)
-                return 't'
-            return 'f'
+            if self.decision == 'f':
+                reading, found = self.read_side_sensors_value()
+                if not found:
+                    return 't'
+                else:
+                    return 'f'
+            else:
+                if abs(self.get_compass_bearing() - self.reference_rotation) < self.goal_rotation:
+                    self.forward()
+                    self.stearing(0.5 * self.sign)
+                    return 't'
+                return 'f'
 
         if phase == 'f':
             # Both sensors are reaching their full distance without an obstacle
@@ -257,8 +269,6 @@ class RobotController(Robot):
         north = self.compass.getValues()
         rad = math.atan2(north[1], north[0])
         bearing = (rad - 1.5708) / math.pi * 180
-        if bearing < 0:
-            bearing += 360
         return bearing
     def checkBox(self):
         value = 0
