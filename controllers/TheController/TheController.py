@@ -1,5 +1,7 @@
 import math
 
+from scipy.spatial.transform import Rotation as R
+import numpy as np
 from controller import Robot
 
 from numpy import clip
@@ -81,7 +83,15 @@ class RobotController(Robot):
 
         self.currentState = "Line"
 
+        self.refRot = None
+        self.prevState = None
+
         self.step(self.timestep)
+
+    def getRot(self):
+        rot = self.inUn.getQuaternion()
+        r = R.from_quat(rot)
+        return r.as_rotvec()
 
     def read_sensors_value(self):
         value = 0
@@ -114,13 +124,23 @@ class RobotController(Robot):
         
         self.numOfVs += 1
 
-    def turnRight(self,perc=1):
-        self.velocities[1] += perc
-        self.velocities[3] += perc
-        self.velocities[0] -= perc
-        self.velocities[2] -= perc
+    def turnRight(self,perc=1,deg=None):
+        if deg != None and self.currentState != "Turning":
+            self.prevState = self.currentState
+            self.currentState="Turning"
+            self.refRot = self.getRot()
         
-        self.numOfVs += 1
+        if deg == None or self.currentState == "Turning":
+            self.velocities[1] += perc
+            self.velocities[3] += perc
+            self.velocities[0] -= perc
+            self.velocities[2] -= perc
+            
+            self.numOfVs += 1
+
+        if (abs(self.getRot()-self.refRot)[2] + 1e-8 > (math.pi*deg/180)):
+            self.currentState=self.prevState
+            print("Done")
 
     
     def turnLeft(self,perc=1):
@@ -280,33 +300,30 @@ class RobotController(Robot):
         while self.step(self.timestep) != -1:
             self.resetState()
 
-            if self.currentState=="Line":
-                self.line_follow()
-                self.forward()
-                if self.notBoxed:
-                    self.checkBox()
-            elif self.currentState=="Boxing":
-                self.sideLeft(0.5)
-                self.checkAvoidBox()
-            elif self.currentState=="ForwardOnly":
-                self.forward()
-                self.checkPassBox()
-            elif self.currentState=="unBoxing":
-                self.DontHit(0.5)
-                self.sideRight(0.5)
-                self.turnRight(0.5)
-                self.checkLine()
-            elif self.currentState=="Maze":
-                self.wall_follow()
-                self.forward()
-            elif self.currentState == "DecisionTree":
-                # self.decision_tree() TODO NEEDS GETTING CURRENT ROTATION
-                pass
-            
-            # WIP
-            rot = self.inUn.getQuaternion()
-            my_formatted_list = [ '%.10f' % elem for elem in rot ]
-            print(my_formatted_list)
+            self.turnRight(1,90)
+
+            # if self.currentState=="Line":
+            #     self.line_follow()
+            #     self.forward()
+            #     if self.notBoxed:
+            #         self.checkBox()
+            # elif self.currentState=="Boxing":
+            #     self.sideLeft(0.5)
+            #     self.checkAvoidBox()
+            # elif self.currentState=="ForwardOnly":
+            #     self.forward()
+            #     self.checkPassBox()
+            # elif self.currentState=="unBoxing":
+            #     self.DontHit(0.5)
+            #     self.sideRight(0.5)
+            #     self.turnRight(0.5)
+            #     self.checkLine()
+            # elif self.currentState=="Maze":
+            #     self.wall_follow()
+            #     self.forward()
+            # elif self.currentState == "DecisionTree":
+            #     # self.decision_tree() TODO NEEDS GETTING CURRENT ROTATION
+            #     pass
 
             self.setVelocities()
             
