@@ -52,28 +52,28 @@ class YoubotArmDriver:
             'grip': [None, None, None, None, None, self.motors_limits[-1][0]],
             'release': [None, None, None, None, None, self.motors_limits[-1][1]],
         }
-    
-    
-    @property
-    def arm(self) -> list[float]:
-        return self[:-2]
+
+    def grip(self, block=True) -> None:
+        self.pose('grip', False)
+        if block: self.wait(slice(-1, None))
 
 
-    @arm.setter
-    def arm(self, value: list[None | int | float]) -> None:
-        self[:-2] = value
-    
-    
-    @property
-    def target(self) -> list[float]:
-        return list(map(
-            lambda m: m.getTargetPosition(),
-            self.motors,
-        ))
-    
+    def release(self, block=True) -> None:
+        self.pose('release', False)
+        if block: self.wait(slice(-1, None))
 
+
+    def reset(self, block=True) -> None:
+        self.pose('reset', block)
+
+
+    def pose(self, name: str, block=True) -> None:
+        self[:] = self.poses[name]
+        if block: self.wait()
+    
+    
     def wait(
-            self, start=0, stop=-1, *,
+            self, indices=slice(None), *,
 
             threshold=1e-3,
             timeout:int=5000,
@@ -82,8 +82,6 @@ class YoubotArmDriver:
             stagnation_timeout:int=100,
         ):
         """Wait until movement is complete."""
-
-        indices = slice(start, stop)
 
         previous = None
         stagnation_timer = stagnation_timeout
@@ -107,25 +105,24 @@ class YoubotArmDriver:
                 elif stagnation_timer <= 0: return
             
             previous = distance
+    
+    
+    @property
+    def arm(self) -> list[float]:
+        return self[:-2]
 
 
-    def grip(self, block=True) -> None:
-        self.pose('grip', False)
-        if block: self.wait(-2, -1)
-
-
-    def release(self, block=True) -> None:
-        self.pose('release', False)
-        if block: self.wait(-2, -1)
-
-
-    def reset(self, block=True) -> None:
-        self.pose('reset', block)
-
-
-    def pose(self, name: str, block=True) -> None:
-        self[:] = self.poses[name]
-        if block: self.wait()
+    @arm.setter
+    def arm(self, value: list[None | int | float]) -> None:
+        self[:-2] = value
+    
+    
+    @property
+    def target(self) -> list[float]:
+        return list(map(
+            lambda m: m.getTargetPosition(),
+            self.motors,
+        ))
     
 
     def normalize(self, value: list[None | int | float]) -> list[None | float]:

@@ -34,7 +34,7 @@ def sleep(time: float) -> None:
 
 
 arm_driver = YoubotArmDriver(robot, CONTROL_TIMESTEP)
-arm_driver.pose('reset')
+arm_driver.reset()
 
 while robot.step(CONTROL_TIMESTEP) != -1:
     # sleep(2)
