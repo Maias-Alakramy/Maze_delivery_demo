@@ -35,6 +35,9 @@ class RobotController(Robot):
             self.sensors.append(self.getDevice("IR_" + str(index)))
             self.sensors[index].enable(self.timestep)
 
+        self.inUn = self.getDevice("inUn")
+        self.inUn.enable(self.timestep)
+        
         self.BackRightest = self.getDevice("BackRightest")
         self.BackRightest.enable(self.timestep)
 
@@ -299,6 +302,11 @@ class RobotController(Robot):
             elif self.currentState == "DecisionTree":
                 # self.decision_tree() TODO NEEDS GETTING CURRENT ROTATION
                 pass
+            
+            # WIP
+            rot = self.inUn.getQuaternion()
+            my_formatted_list = [ '%.10f' % elem for elem in rot ]
+            print(my_formatted_list)
 
             self.setVelocities()
             

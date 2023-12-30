@@ -81,6 +81,9 @@ Youbot {
   name "TheBot"
   controller "TheController"
   bodySlot [
+    InertialUnit {
+      name "inUn"
+    }
     DistanceSensor {
       translation 0.27 -0.21 0
       rotation 0 0 1 -1.5707953071795862
