@@ -13,7 +13,7 @@ class RobotController(Robot):
         Robot.__init__(self)
 
         # end is only there to prevent out of index exception
-        self.decisionTree = ['r', 'l', 'f', 'l', 'l', 'l', 'r', 'r', 'ul', 'l', 'l', 'r', 'f', 'end']
+        self.decisionTree = ['r', 'l', 'f', 'l', 'l', 'l', 'r', 'r', 'ul', 'l', 'l', 'f', 'end']
 
         self.timestep = int(self.getBasicTimeStep())
         self.motors=[]
@@ -36,9 +36,6 @@ class RobotController(Robot):
         for index in self.sensors_index:
             self.sensors.append(self.getDevice("IR_" + str(index)))
             self.sensors[index].enable(self.timestep)
-
-        self.inUn = self.getDevice("inUn")
-        self.inUn.enable(self.timestep)
 
         self.compass = self.getDevice('compass')
         self.compass.enable(self.timestep)
@@ -74,8 +71,6 @@ class RobotController(Robot):
         self.all_side_errors=0
         self.all_side_times=0
 
-        self.notBoxed=True
-
         self.last_error = 0
         self.all_errors = 0
         self.all_times = 0
@@ -85,16 +80,13 @@ class RobotController(Robot):
         self.numOfVs = 0
 
         self.currentState = "Line"
+        self.subCurrentState = "Line"
 
-        self.refRot = None
         self.prevState = None
+        self.boxAvoided = True
+        self.leftDirection = False
 
         self.step(self.timestep)
-
-    def getRot(self):
-        rot = self.inUn.getQuaternion()
-        r = R.from_quat(rot)
-        return r.as_rotvec()
 
     def read_sensors_value(self):
         value = 0
@@ -104,6 +96,13 @@ class RobotController(Robot):
                 value += self.sensors_coefficient[index]
                 once = True
         return value/5,once
+
+    def read_front_dist_sensors_value(self):
+        value = 0
+        for index, sensor in enumerate(self.front_dist_sen):
+            if sensor.getValue() < 900 :
+                value += self.sensors_coefficient[index]
+        return value
 
     def read_side_sensors_value(self):
         coeff=0.01
@@ -127,53 +126,38 @@ class RobotController(Robot):
         
         self.numOfVs += 1
 
-    def turnRight(self,perc=1,deg=None):
-        if deg != None and self.currentState != "Turning":
-            self.prevState = self.currentState
-            self.currentState="Turning"
-            self.refRot = self.getRot()
-        
-        if deg == None or self.currentState == "Turning":
+    def turnMove(self,Left,perc=1):
+        if Left:
+            self.velocities[1] -= perc
+            self.velocities[3] -= perc
+            self.velocities[0] += perc
+            self.velocities[2] += perc
+        else:
             self.velocities[1] += perc
             self.velocities[3] += perc
             self.velocities[0] -= perc
             self.velocities[2] -= perc
-            
-            self.numOfVs += 1
-
-        if (deg != None and abs(self.getRot()-self.refRot)[2] + 1e-8 > (math.pi*deg/180)):
-            self.currentState=self.prevState
-            print("Done")
-
-    
-    def turnLeft(self,perc=1):
-        self.velocities[1] -= perc
-        self.velocities[3] -= perc
-        self.velocities[0] += perc
-        self.velocities[2] += perc
         
         self.numOfVs += 1
 
 
-    def sideRight(self,perc=1):
-        self.velocities[1] += perc
-        self.velocities[3] -= perc
-        self.velocities[0] -= perc
-        self.velocities[2] += perc
-        
-        self.numOfVs += 1
+    def sideMove(self,Left,perc=1):
+        if Left:
+            self.velocities[1] -= perc
+            self.velocities[3] += perc
+            self.velocities[0] += perc
+            self.velocities[2] -= perc
 
-
-    def sideLeft(self,perc=1):
-        self.velocities[1] -= perc
-        self.velocities[3] += perc
-        self.velocities[0] += perc
-        self.velocities[2] -= perc
+        else:
+            self.velocities[1] += perc
+            self.velocities[3] -= perc
+            self.velocities[0] -= perc
+            self.velocities[2] += perc
         
         self.numOfVs += 1
 
     def setVelocities(self):
-        if self.numOfVs == 0: return
+        if self.numOfVs == 0: self.numOfVs=1
         for i in range(len(self.motors)):
             self.motors[i].setVelocity(
                 clip(self.movment_velocity * (self.velocities[i] / self.numOfVs), -self.movment_velocity,
@@ -238,19 +222,22 @@ class RobotController(Robot):
             elif self.decision == 'ul':
                 self.goal_rotation = 180
                 self.sign = 1
+            elif self.decision == 'end':
+                self.currentState="Solved"
 
             return 't'
 
         if phase == 't':
             if abs(self.get_compass_bearing() - self.reference_rotation) < self.goal_rotation:
-                self.forward()
+                if self.decision != 'b':
+                    self.forward(0.8)
                 self.stearing(0.5 * self.sign)
                 return 't'
             return 'f'
 
         if phase == 'f':
             self.forward()
-            if self.read_side_sensors_value()[1]:
+            if self.checkMaze():
                 self.currentState = "Maze"
                 return 's'
             else:
@@ -261,63 +248,77 @@ class RobotController(Robot):
         rad = math.atan2(north[1], north[0])
         bearing = (rad - 1.5708) / math.pi * 180
         return bearing
+
     def checkBox(self):
-        value = 0
-        for index, sensor in enumerate(self.front_dist_sen):
-            if sensor.getValue() < 900 :
-                value += self.sensors_coefficient[index]
+        value = self.read_front_dist_sensors_value()
         if abs(value/5) > 0.1 :
             self.notBoxed=False
-            self.currentState = "Boxing"
+            self.prevState = self.currentState
+            self.currentState = "Box"
+            self.subCurrentState = "Boxing"
+            self.boxAvoided = False
 
-    def checkAvoidBox(self,side="Right"):
-        if ((side=="Right" and self.Rightest.getValue() < 900) or 
-            (side=="Left" and self.Leftest.getValue() < 900)):
-                self.currentState="ForwardOnly"
+    def checkAvoidBox(self,fromLeft=False):
+        if ((fromLeft and self.Rightest.getValue() < 900) or 
+            (not(fromLeft) and self.Leftest.getValue() < 900)):
+                self.subCurrentState="ForwardOnly"
     
-    def checkPassBox(self,side="Right"):
-        if ((side=="Right" and self.BackRight.getValue() < 900) or 
-            (side=="Left" and self.BackLeft.getValue() < 900)):
-                self.currentState="unBoxing"
+    def checkPassBox(self,fromLeft=False):
+        if ((fromLeft and self.BackRight.getValue() < 900) or 
+            (not(fromLeft) and self.BackLeft.getValue() < 900)):
+                self.subCurrentState="unBoxing"
     
-    def DontHit(self,perc,side="Right"):
-        if ((side=="Right" and self.BackRightest.getValue() < 900) or 
-            (side=="Left" and self.BackLeftest.getValue() < 900)):
+    def DontHit(self,perc,fromLeft=False):
+        if ((fromLeft and self.BackRightest.getValue() < 900) or 
+            (not(fromLeft) and self.BackLeftest.getValue() < 900)):
                 self.forward(perc)
 
     def checkLine(self):
         _,found = self.read_sensors_value()
-        if found:
-            self.currentState = "Line"
+        return found
+
+    def checkMaze(self):
+        _,found = self.read_side_sensors_value()
+        return found
 
     def resetState(self):
         self.velocities=[0 for i in range(len(self.velocities))]
         self.numOfVs = 0
+
+    def getAway(self,fromLeft=True):
+        if self.subCurrentState == "Boxing":
+            self.sideMove(fromLeft,0.5)
+            self.checkAvoidBox(fromLeft)
+        elif self.subCurrentState == "ForwardOnly":
+            self.forward()
+            self.checkPassBox(fromLeft)
+        elif self.subCurrentState == "unBoxing":
+            self.DontHit(0.5,fromLeft)
+            self.sideMove(not(fromLeft),0.5)
+            self.turnMove(not(fromLeft),0.5)
+            if (self.prevState=="Line"and self.checkLine()) or (self.prevState=="Maze" and self.checkMaze()):
+                self.currentState = self.prevState
 
     def loop(self):
         phase = 's'
         while self.step(self.timestep) != -1:
             self.resetState()
 
-            # self.turnRight(1,90)
-
             if self.currentState == "Line":
                 self.line_follow()
                 self.forward()
-                if self.notBoxed:
-                    self.checkBox()
-            elif self.currentState == "Boxing":
-                self.sideLeft(0.5)
-                self.checkAvoidBox()
-            elif self.currentState == "ForwardOnly":
-                self.forward()
-                self.checkPassBox()
-            elif self.currentState == "unBoxing":
-                self.DontHit(0.5)
-                self.sideRight(0.5)
-                self.turnRight(0.5)
-                self.checkLine()
+                self.checkBox()
+            elif self.currentState == "Box":
+                if self.read_front_dist_sensors_value()>0 and not(self.boxAvoided):
+                    self.leftDirection = True
+                    self.boxAvoided=True
+                elif not(self.boxAvoided):
+                    self.leftDirection = False
+                    self.boxAvoided=True
+                
+                self.getAway(self.leftDirection)
             elif self.currentState == "Maze":
+                self.checkBox()
                 self.wall_follow()
                 self.forward()
             elif self.currentState == "DecisionTree":
