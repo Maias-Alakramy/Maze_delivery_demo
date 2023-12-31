@@ -119,48 +119,33 @@ class RobotController(Robot):
         
         self.numOfVs += 1
 
-    def turnRight(self,perc=1,deg=None):
-        if deg != None and self.currentState != "Turning":
-            self.prevState = self.currentState
-            self.currentState="Turning"
-            self.refRot = self.getRot()
-        
-        if deg == None or self.currentState == "Turning":
+    def turnMove(self,Left,perc=1):
+        if Left:
+            self.velocities[1] -= perc
+            self.velocities[3] -= perc
+            self.velocities[0] += perc
+            self.velocities[2] += perc
+        else:
             self.velocities[1] += perc
             self.velocities[3] += perc
             self.velocities[0] -= perc
             self.velocities[2] -= perc
-            
-            self.numOfVs += 1
-
-        if (deg != None and abs(self.getRot()-self.refRot)[2] + 1e-8 > (math.pi*deg/180)):
-            self.currentState=self.prevState
-            print("Done")
-
-    
-    def turnLeft(self,perc=1):
-        self.velocities[1] -= perc
-        self.velocities[3] -= perc
-        self.velocities[0] += perc
-        self.velocities[2] += perc
         
         self.numOfVs += 1
 
 
-    def sideRight(self,perc=1):
-        self.velocities[1] += perc
-        self.velocities[3] -= perc
-        self.velocities[0] -= perc
-        self.velocities[2] += perc
-        
-        self.numOfVs += 1
+    def sideMove(self,Left,perc=1):
+        if Left:
+            self.velocities[1] -= perc
+            self.velocities[3] += perc
+            self.velocities[0] += perc
+            self.velocities[2] -= perc
 
-
-    def sideLeft(self,perc=1):
-        self.velocities[1] -= perc
-        self.velocities[3] += perc
-        self.velocities[0] += perc
-        self.velocities[2] -= perc
+        else:
+            self.velocities[1] += perc
+            self.velocities[3] -= perc
+            self.velocities[0] -= perc
+            self.velocities[2] += perc
         
         self.numOfVs += 1
 
