@@ -71,8 +71,6 @@ class RobotController(Robot):
         self.all_side_errors=0
         self.all_side_times=0
 
-        self.notBoxed=True
-
         self.last_error = 0
         self.all_errors = 0
         self.all_times = 0
@@ -82,8 +80,8 @@ class RobotController(Robot):
         self.numOfVs = 0
 
         self.currentState = "Line"
+        self.subCurrentState = "Line"
 
-        self.refRot = None
         self.prevState = None
 
         self.step(self.timestep)
@@ -245,21 +243,23 @@ class RobotController(Robot):
                 value += self.sensors_coefficient[index]
         if abs(value/5) > 0.1 :
             self.notBoxed=False
-            self.currentState = "Boxing"
+            self.prevState = self.currentState
+            self.currentState = "Box"
+            self.subCurrentState = "Boxing"
 
-    def checkAvoidBox(self,side="Right"):
-        if ((side=="Right" and self.Rightest.getValue() < 900) or 
-            (side=="Left" and self.Leftest.getValue() < 900)):
-                self.currentState="ForwardOnly"
+    def checkAvoidBox(self,fromLeft=False):
+        if ((fromLeft and self.Rightest.getValue() < 900) or 
+            (not(fromLeft) and self.Leftest.getValue() < 900)):
+                self.subCurrentState="ForwardOnly"
     
-    def checkPassBox(self,side="Right"):
-        if ((side=="Right" and self.BackRight.getValue() < 900) or 
-            (side=="Left" and self.BackLeft.getValue() < 900)):
-                self.currentState="unBoxing"
+    def checkPassBox(self,fromLeft=False):
+        if ((fromLeft and self.BackRight.getValue() < 900) or 
+            (not(fromLeft) and self.BackLeft.getValue() < 900)):
+                self.subCurrentState="unBoxing"
     
-    def DontHit(self,perc,side="Right"):
-        if ((side=="Right" and self.BackRightest.getValue() < 900) or 
-            (side=="Left" and self.BackLeftest.getValue() < 900)):
+    def DontHit(self,perc,fromLeft=False):
+        if ((fromLeft and self.BackRightest.getValue() < 900) or 
+            (not(fromLeft) and self.BackLeftest.getValue() < 900)):
                 self.forward(perc)
 
     def checkLine(self):
@@ -274,30 +274,33 @@ class RobotController(Robot):
         self.velocities=[0 for i in range(len(self.velocities))]
         self.numOfVs = 0
 
+    def getAway(self,fromLeft=True):
+        if self.subCurrentState == "Boxing":
+            self.sideMove(fromLeft,0.5)
+            self.checkAvoidBox(fromLeft)
+        elif self.subCurrentState == "ForwardOnly":
+            self.forward()
+            self.checkPassBox(fromLeft)
+        elif self.subCurrentState == "unBoxing":
+            self.DontHit(0.5,fromLeft)
+            self.sideMove(not(fromLeft),0.5)
+            self.turnMove(not(fromLeft),0.5)
+            if (self.prevState=="Line"and self.checkLine()) or (self.prevState=="Maze" and self.checkMaze()):
+                self.currentState = self.prevState
+
     def loop(self):
         phase = 's'
         while self.step(self.timestep) != -1:
             self.resetState()
 
-            # self.turnRight(1,90)
-
             if self.currentState == "Line":
                 self.line_follow()
                 self.forward()
-                if self.notBoxed:
-                    self.checkBox()
-            elif self.currentState == "Boxing":
-                self.sideLeft(0.5)
-                self.checkAvoidBox()
-            elif self.currentState == "ForwardOnly":
-                self.forward()
-                self.checkPassBox()
-            elif self.currentState == "unBoxing":
-                self.DontHit(0.5)
-                self.sideRight(0.5)
-                self.turnRight(0.5)
-                self.checkLine()
+                self.checkBox()
+            elif self.currentState == "Box":
+                self.getAway()
             elif self.currentState == "Maze":
+                self.checkBox()
                 self.wall_follow()
                 self.forward()
             elif self.currentState == "DecisionTree":
