@@ -8,17 +8,17 @@ from controller import Robot, Motor
 
 
 class YoubotArmDriver:
-    def __init__(self, robot: Robot, timestep: int | None = None):
+    def __init__(self, robot: Robot, timestep: int | None = None, *, prefix=''):
         self.robot = robot
         self.timestep = int(timestep or robot.getBasicTimeStep())
 
         self.motors = [
-            YoubotArmDriver.__get_motor(robot, f'arm{i+1}')
+            YoubotArmDriver.__get_motor(robot, f'{prefix}arm{i+1}')
             for i in range(5)
         ]
 
         self.motors.append(YoubotArmDriver.__get_motor(
-            robot, 'finger::left',
+            robot, f'{prefix}finger::left',
         ))
 
         for motor in self.motors:
@@ -30,7 +30,7 @@ class YoubotArmDriver:
         ]
 
         self.poses = {
-            'reset': [.0, 1.57, -2.635, 1.78, .0, self.motors_limits[-1][0]],
+            'reset': [.0, .0, .0, .0, .0, self.motors_limits[-1][0]], #[.0, 1.57, -2.635, 1.78, .0, self.motors_limits[-1][0]],
             'packed': [None, 1.57, -2.635, 1.78, .0],
             '3_5_packed': [None, None, -2.635, 1.78, .0],
 

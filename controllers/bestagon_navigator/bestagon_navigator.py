@@ -1,7 +1,7 @@
 """bestagon_navigator controller."""
 
 import numpy as np
-from controller import Robot, Lidar, Camera
+from controller import Robot, Lidar
 
 from typing import *
 from numpy.typing import NDArray
@@ -14,30 +14,21 @@ robot = Robot()
 TIMESTEP = int(robot.getBasicTimeStep())
 CONTROL_TIMESTEP = TIMESTEP * 10
 
-# for name, device in robot.devices.items():
-#     print(name, type(device))
 
 # -- Devices -- #
 wheels_driver = MecanumDriver(robot)
 arm_driver = YoubotArmDriver(robot, CONTROL_TIMESTEP)
+back_arm_driver = YoubotArmDriver(robot, CONTROL_TIMESTEP, prefix='front ')
 
 lidar: Lidar = robot.getDevice('front-box-lidar')
 lidar.enablePointCloud()
-# camera: Camera = robot.getDevice('front-box-cam')
 
 lidar.enable(int(CONTROL_TIMESTEP))
-# camera.enable(100)
-#lidar.disable()
-
-# print('RES:', lidar.getHorizontalResolution())
-
 
 def sleep(time: float) -> None:
     robot.step(int(time * 1000))
 
 
-# arm_driver.reset(True)
-# arm_driver.pose('floor', False)
 
 depth_resolution = lidar.getHorizontalResolution()
 lidar_x = np.linspace(-1, 1, depth_resolution)
@@ -171,8 +162,36 @@ def clamp(value: float, min: float, max: float) -> float:
 def get_magnitude(vector: NDArray) -> float:
     return np.sqrt(np.sum(np.square(vector), -1))
 
+arm_driver.reset()
+back_arm_driver.reset()
 
-arm_driver.reset(False)
+def exchange_box(reverse = False):
+    primary = back_arm_driver if reverse else arm_driver
+    secondary = arm_driver if reverse else back_arm_driver
+
+    primary[:] = [.0, .0, .0, .0, .0]
+    primary.wait()
+
+    exchange_angle = 8 / 180 * np.pi
+
+    secondary.release(False)
+    secondary.arm = [.0, -exchange_angle, exchange_angle, .5 * np.pi, .0]
+    secondary.wait()
+
+    primary[:] = [.0, -exchange_angle, exchange_angle, .5 * np.pi, .5 * np.pi]
+    primary.wait()
+
+    secondary.grab()
+    primary.release()
+
+    primary[-2] = .0
+    secondary[-2] = .5 * np.pi
+
+    secondary.wait()
+    primary.wait()
+
+    secondary.reset()
+    primary.reset()
 
 
 while robot.step(CONTROL_TIMESTEP) != -1:
@@ -225,9 +244,8 @@ arm_driver[-2] = -box_angle
 arm_driver.wait()
 arm_driver.grab()
 
-arm_driver[-1] = .0
-arm_driver.pose('plate_back_high')
-arm_driver.release()
-arm_driver.pose('3_5_packed')
 arm_driver.reset()
 
+exchange_box()
+sleep(.5)
+exchange_box(True)

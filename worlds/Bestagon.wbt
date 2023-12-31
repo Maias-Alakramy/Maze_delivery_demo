@@ -35,8 +35,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.07289355604653736 0.970091057975934 0.23153805026825158 0.6276126910507044
-  position -1.0787452160934747 -5.656309315014465 0.8531154956829221
+  orientation 0.4218853872836739 0.4367176530512815 -0.794537860337621 1.765005294361153
+  position 0.0004935392586882808 -4.743056696246218 1.5331534128752575
   follow "Roberto"
 }
 TexturedBackground {
@@ -70,15 +70,6 @@ Youbot {
   name "Roberto"
   controller "bestagon_navigator"
   bodySlot [
-    Camera {
-      translation 0.29 0 -0.09
-      name "front-box-cam"
-      fieldOfView 0.1
-      width 1
-      height 1
-      near 0.02
-      far 0.3
-    }
     Lidar {
       translation -0.05 0 -0.09
       name "front-box-lidar"
@@ -91,6 +82,7 @@ Youbot {
       maxFrequency 100
     }
   ]
+  numberOfArms 2
 }
 KukaBox {
   translation 0.58 -5.62 0.03
