@@ -1,5 +1,4 @@
 import numpy as np
-from enum import StrEnum
 
 from typing import *
 from numpy.typing import NDArray
