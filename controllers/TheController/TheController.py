@@ -222,6 +222,8 @@ class RobotController(Robot):
             elif self.decision == 'ul':
                 self.goal_rotation = 180
                 self.sign = 1
+            elif self.decision == 'end':
+                self.currentState="Solved"
 
             return 't'
 
