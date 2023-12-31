@@ -79,15 +79,15 @@ Youbot {
       far 0.3
     }
     Lidar {
-      translation 0.11 0 -0.09
+      translation -0.05 0 -0.09
       name "front-box-lidar"
-      horizontalResolution 32
-      fieldOfView 1
+      fieldOfView 0.8
       numberOfLayers 1
-      near 0.2
-      minRange 0.2
-      maxRange 0.5
-      resolution 0.001
+      near 0.37
+      minRange 0.38
+      maxRange 0.7
+      resolution 0.0001
+      maxFrequency 100
     }
   ]
 }
