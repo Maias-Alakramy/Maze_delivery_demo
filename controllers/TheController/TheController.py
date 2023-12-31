@@ -264,6 +264,8 @@ class RobotController(Robot):
 
     def checkLine(self):
         _,found = self.read_sensors_value()
+        return found
+
     def checkMaze(self):
         _,found = self.read_side_sensors_value()
         return found
