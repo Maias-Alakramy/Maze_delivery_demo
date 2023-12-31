@@ -53,7 +53,7 @@ class YoubotArmDriver:
             'release': [None, None, None, None, None, self.motors_limits[-1][1]],
         }
 
-    def grip(self, block=True) -> None:
+    def grab(self, block=True) -> None:
         self.pose('grip', False)
         if block: self.wait(slice(-1, None))
 

@@ -19,6 +19,8 @@ CONTROL_TIMESTEP = TIMESTEP * 10
 
 # -- Devices -- #
 wheels_driver = MecanumDriver(robot)
+arm_driver = YoubotArmDriver(robot, CONTROL_TIMESTEP)
+
 lidar: Lidar = robot.getDevice('front-box-lidar')
 lidar.enablePointCloud()
 # camera: Camera = robot.getDevice('front-box-cam')
@@ -34,18 +36,17 @@ def sleep(time: float) -> None:
     robot.step(int(time * 1000))
 
 
-arm_driver = YoubotArmDriver(robot, CONTROL_TIMESTEP)
 # arm_driver.reset(True)
 # arm_driver.pose('floor', False)
 
 depth_resolution = lidar.getHorizontalResolution()
-depth_x = np.linspace(-1, 1, depth_resolution)
+lidar_x = np.linspace(-1, 1, depth_resolution)
 
 def read_depth() -> NDArray:
     return np.array(list(map(
         lambda x: (x[0], np.nan) if np.isinf(x[1]) or np.isnan(x[1]) else x,
         zip(
-            depth_x,
+            lidar_x,
             lidar.getRangeImage(),
         )
     )))
@@ -67,7 +68,7 @@ def print_depth(depth: NDArray, name='') -> None:
 
 def correct_coordinates(depth: NDArray, fov: float) -> NDArray:
     result = depth.copy()
-    result[:, 0] *= np.sin(depth[:, 0] * fov * .5) * depth[:, 1]
+    result[:, 0] *= np.abs(np.sin(depth[:, 0] * fov * .5) * depth[:, 1])
     return result
 
 
@@ -104,17 +105,14 @@ def edges_detection(depth: NDArray, thresh=180e-6) -> NDArray:
     edges: list[tuple[NDArray, NDArray]] = []
     boundaries = diff2 >= thresh
 
-    print(''.join(list(map(lambda x: 'T' if x else 'F', boundaries))), len(depth))
-    print_depth(diff2 * 1e4)
+    # print(''.join(list(map(lambda x: '#' if x else '-', boundaries))), len(depth))
+    # print_depth(diff2 * 1e4)
 
-    hist = np.histogram(diff2, 10)
-    print('Histogram:')
-    print('----------')
-    print(' '.join(map(lambda x: f'{x:7d}', hist[0])))
-    print(' '.join(map(lambda x: f'{x:.5f}', hist[1])))
-
-    # print('HIST:', ' '.join(map(lambda x: f'{x:.5f}', np.histogram(acc, 10)[0])))
-    # print('max:', np.max(acc))
+    # hist = np.histogram(diff2, 10)
+    # print('Histogram:')
+    # print('----------')
+    # print(' '.join(map(lambda x: f'{x:7d}', hist[0])))
+    # print(' '.join(map(lambda x: f'{x:.5f}', hist[1])))
 
     previous, skip = 0, False
     for i, boundary in enumerate(np.concatenate([boundaries, [True]])):
@@ -128,6 +126,30 @@ def edges_detection(depth: NDArray, thresh=180e-6) -> NDArray:
     return np.array(edges)
 
 
+class LiDARObject:
+    def __init__(self, depth: NDArray) -> None:
+        self.depth = depth
+        self.width = np.abs(depth[0, 0] - depth[-1, 0])
+
+        self.mean = np.average(depth, axis=0)
+        self.edges = edges_detection(depth)
+
+        self.edges_count = self.edges.shape[0]
+
+
+def clamp(value: float, min: float, max: float) -> float:
+    if value < min: return min
+    if value > max: return max
+    return value
+
+
+def get_magnitude(vector: NDArray) -> float:
+    return np.sqrt(np.sum(np.square(vector), -1))
+
+
+arm_driver.reset(False)
+
+
 while robot.step(CONTROL_TIMESTEP) != -1:
     depth = read_depth()
     depth = correct_coordinates(depth, lidar.getFov())
@@ -139,24 +161,76 @@ while robot.step(CONTROL_TIMESTEP) != -1:
     # print_depth(d2 * 100, 'Diff2:    ')
 
     # print(depth)
-    objects = objects_segmentation(depth)
-    objects = list(filter(lambda o: not np.all(np.isnan(o)), objects))
-    objects_edges = list(map(edges_detection, objects))
-    edges = np.concatenate(objects_edges[:1])
+    objects_depth = objects_segmentation(depth)
+    objects_depth = list(filter(lambda o: not np.all(np.isnan(o)), objects_depth))
+    objects = list(map(LiDARObject, objects_depth))
+
+    if len(objects) == 0:
+        # print("I've failed sir..")
+        wheels_driver.stop()
+        continue
+    
+    box = objects[0]
+    box_center = box.mean
+
+    grab_position = np.array([.0, .435])
+
+    # print('Box Center:', ' '.join(map(str, box_center)))
+    delta_position = box_center - grab_position
+
+    direction = np.sign(delta_position)
+    direction = direction / get_magnitude(direction)
+
+    speed = np.array([
+        delta_position[0] * 20,
+        delta_position[1] * 5,
+    ])
+
+    max_speed = .22
+    angle = np.arctan2(speed[1], speed[0]) - .5 * np.pi
+    magnitude = clamp(get_magnitude(speed), 0, max_speed)
+
+
+    wheels_driver.move(angle, magnitude)
+
+    if magnitude < 1e-3: break
+
+    # wheels_driver.move('right', x_speed)
+
+
+    # objects_edges = list(map(edges_detection, objects_depth))
+    # edges = np.concatenate(objects_edges)
 
     # edge_detection(depth)
 
     # print(edge_detection(depth))
-    print('Detected Objects:', len(objects))
-    print('Edges:')
-    print('------')
-    for edge in edges:
-        center = np.average(edge, axis=0)
-        angle = np.arctan2(edge[1, 1] - edge[0, 1], edge[1, 0] - edge[0, 0])
-        length = np.sqrt(np.sum(np.square(edge[0] - edge[1])))
-        print(f'• Center: ({center[0]}, {center[1]}), Length: {length}, Angle: {angle * 180 / np.pi:.1f}°')
+    # print('Detected Objects:', len(objects))
+    # print('Edges:')
+    # print('------')
+    # for edge in edges:
+    #     center = np.average(edge, axis=0)
+    #     angle = np.arctan2(edge[1, 1] - edge[0, 1], edge[1, 0] - edge[0, 0])
+    #     length = np.sqrt(np.sum(np.square(edge[0] - edge[1])))
+    #     print(f'• Center: ({center[0]}, {center[1]}), Length: {length}, Angle: {angle * 180 / np.pi:.1f}°')
     
 
     pass
+
+
+wheels_driver.stop()
+
+arm_driver.release()
+arm_driver.pose('floor')
+arm_driver.grab()
+arm_driver.pose('plate_back_high')
+arm_driver.release()
+arm_driver.pose('3_5_packed')
+arm_driver.reset()
+
+lidar.disablePointCloud()
+lidar.disable()
+
+# arm_driver.pose('3_5_packed')
+# arm_driver.reset()
 
 # Enter here exit cleanup code.
