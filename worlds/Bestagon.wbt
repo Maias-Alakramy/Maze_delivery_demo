@@ -35,9 +35,10 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.1110089983917883 -0.014493675266996232 0.9937137091000138 3.399635828858494
-  position 0.978597084754325 -5.263649126913825 0.18422336977534579
+  orientation -0.13459018909722853 -0.0013459467561633017 0.9909004336592561 3.1614106742304067
+  position 1.2176083018073092 -5.483166582124727 0.24251264834028932
   follow "Roberto"
+  followType "None"
 }
 TexturedBackground {
   texture "noon_building_overcast"
@@ -66,6 +67,7 @@ MazeCodegen {
 }
 Youbot {
   translation 0 -5.5 0.12
+  rotation 0 0 1 2.24093e-06
   name "Roberto"
   controller "bestagon_navigator"
   bodySlot [
@@ -92,6 +94,7 @@ Youbot {
   ]
 }
 KukaBox {
-  translation 0.52 -5.5 0.03
+  translation 0.58 -5.62 0.03
+  rotation 0 0 1 -0.523595307179586
   color 1 0 0
 }
