@@ -26,6 +26,7 @@ class KukaProgram:
 
         self.lidar = {
             'front': LiDARVision(robot, 'front-lidar'),
+            'front': LiDARVision(robot, 'back-lidar'),
         }
 
         self.capture_positions = {

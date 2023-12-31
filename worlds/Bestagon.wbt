@@ -35,8 +35,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.4218853872836739 0.4367176530512815 -0.794537860337621 1.765005294361153
-  position 0.0004935392586882808 -4.743056696246218 1.5331534128752575
+  orientation 0.32646381236096345 0.5058424952096178 -0.7984639937147155 1.3595445205889611
+  position -0.49046707400985157 -4.436353883575282 1.2607787411551037
   follow "Roberto"
 }
 TexturedBackground {
@@ -72,7 +72,19 @@ Youbot {
   bodySlot [
     Lidar {
       translation -0.05 0 -0.09
-      name "front-box-lidar"
+      name "front-lidar"
+      fieldOfView 0.8
+      numberOfLayers 1
+      near 0.37
+      minRange 0.38
+      maxRange 0.7
+      resolution 0.0001
+      maxFrequency 100
+    }
+    Lidar {
+      translation 0.05 0 -0.09
+      rotation 0 0 1 -3.141592653579586
+      name "back-lidar"
       fieldOfView 0.8
       numberOfLayers 1
       near 0.37

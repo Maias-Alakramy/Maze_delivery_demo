@@ -6,6 +6,5 @@ maximizedDockId: -1
 centralWidgetVisible: 1
 orthographicViewHeight: 1
 textFiles: 3 "protos/CargoExtension.proto" "Bestagon.wbt" "" "C:/Users/Rami/AppData/Local/Temp/webots-1234/generated_protos/Youbot.generated_proto"
-globalOptionalRendering: LidarRaysPaths::LidarPointClouds
+globalOptionalRendering: LidarRaysPaths
 consoles: Console:All:All
-renderingDevicePerspectives: Roberto:front-box-cam;0;32;0;0
