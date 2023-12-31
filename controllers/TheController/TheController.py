@@ -37,9 +37,6 @@ class RobotController(Robot):
             self.sensors.append(self.getDevice("IR_" + str(index)))
             self.sensors[index].enable(self.timestep)
 
-        self.inUn = self.getDevice("inUn")
-        self.inUn.enable(self.timestep)
-
         self.compass = self.getDevice('compass')
         self.compass.enable(self.timestep)
         
@@ -90,11 +87,6 @@ class RobotController(Robot):
         self.prevState = None
 
         self.step(self.timestep)
-
-    def getRot(self):
-        rot = self.inUn.getQuaternion()
-        r = R.from_quat(rot)
-        return r.as_rotvec()
 
     def read_sensors_value(self):
         value = 0
