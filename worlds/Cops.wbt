@@ -81,6 +81,8 @@ Youbot {
   name "TheBot"
   controller "TheController"
   bodySlot [
+    Compass {
+    }
     InertialUnit {
       name "inUn"
     }
