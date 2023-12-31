@@ -227,7 +227,7 @@ class RobotController(Robot):
 
         if phase == 'f':
             self.forward()
-            if self.read_side_sensors_value()[1]:
+            if self.checkMaze():
                 self.currentState = "Maze"
                 return 's'
             else:
@@ -264,8 +264,9 @@ class RobotController(Robot):
 
     def checkLine(self):
         _,found = self.read_sensors_value()
-        if found:
-            self.currentState = "Line"
+    def checkMaze(self):
+        _,found = self.read_side_sensors_value()
+        return found
 
     def resetState(self):
         self.velocities=[0 for i in range(len(self.velocities))]
