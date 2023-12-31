@@ -13,7 +13,7 @@ class RobotController(Robot):
         Robot.__init__(self)
 
         # end is only there to prevent out of index exception
-        self.decisionTree = ['r', 'l', 'f', 'l', 'l', 'l', 'r', 'r', 'ul', 'l', 'l', 'r', 'f', 'end']
+        self.decisionTree = ['r', 'l', 'f', 'l', 'l', 'l', 'r', 'r', 'ul', 'l', 'l', 'f', 'end']
 
         self.timestep = int(self.getBasicTimeStep())
         self.motors=[]
