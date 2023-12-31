@@ -227,7 +227,8 @@ class RobotController(Robot):
 
         if phase == 't':
             if abs(self.get_compass_bearing() - self.reference_rotation) < self.goal_rotation:
-                self.forward()
+                if self.decision != 'b':
+                    self.forward(0.8)
                 self.stearing(0.5 * self.sign)
                 return 't'
             return 'f'
