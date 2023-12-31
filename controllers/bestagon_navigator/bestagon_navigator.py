@@ -43,13 +43,16 @@ depth_resolution = lidar.getHorizontalResolution()
 lidar_x = np.linspace(-1, 1, depth_resolution)
 
 def read_depth() -> NDArray:
-    return np.array(list(map(
-        lambda x: (x[0], np.nan) if np.isinf(x[1]) or np.isnan(x[1]) else x,
-        zip(
-            lidar_x,
-            lidar.getRangeImage(),
-        )
-    )))
+    cloud_points = lidar.getPointCloud()
+    depth = np.full((len(cloud_points), 2), np.nan)
+
+    # cloud_points.reverse()
+    for i, point in enumerate(cloud_points):
+        coords = (-point.y, point.x)
+        if np.any(np.isnan(coords) | np.isinf(coords)): continue
+        depth[i] = coords
+    
+    return depth
 
 
 def depth2str(depth: NDArray) -> str:
@@ -64,12 +67,6 @@ def depth2str(depth: NDArray) -> str:
 
 def print_depth(depth: NDArray, name='') -> None:
     print(name, depth2str(depth))
-
-
-def correct_coordinates(depth: NDArray, fov: float) -> NDArray:
-    result = depth.copy()
-    result[:, 0] *= np.abs(np.sin(depth[:, 0] * fov * .5) * depth[:, 1])
-    return result
 
 
 def objects_segmentation(depth: NDArray, thresh=5e-2) -> list[NDArray]:
@@ -89,20 +86,19 @@ def objects_segmentation(depth: NDArray, thresh=5e-2) -> list[NDArray]:
 
 
 
-def edges_detection(depth: NDArray, thresh=180e-6) -> NDArray:
+def edges_detection(depth: NDArray, thresh=120e-6) -> list[NDArray]:
     depth_cleaned = depth[~np.isnan(depth[:, 1])]
     depth_y = depth_cleaned[:, 1].copy()
 
     if len(depth_y) < 2: return np.zeros((0, 2, 2), dtype=float)
 
     filter_size = 5
-    filter_mid = filter_size // 2
     filter = np.ones(filter_size) / filter_size
 
     depth_filtered = np.convolve(depth_y, filter, 'valid')
     diff2 = np.abs(np.diff(depth_filtered, 2))
 
-    edges: list[tuple[NDArray, NDArray]] = []
+    edges: list[NDArray] = []
     boundaries = diff2 >= thresh
 
     # print(''.join(list(map(lambda x: '#' if x else '-', boundaries))), len(depth))
@@ -117,13 +113,16 @@ def edges_detection(depth: NDArray, thresh=180e-6) -> NDArray:
     previous, skip = 0, False
     for i, boundary in enumerate(np.concatenate([boundaries, [True]])):
         if not boundary: skip = False
+        elif skip: previous = i
+
         if skip or not boundary: continue
 
-        segment = depth_cleaned[previous:i+2+filter_mid]
-        edges.append((tuple(segment[0]), tuple(segment[-1])))
+        end = clamp(i+2+filter_size, previous, depth_cleaned.shape[0]-1)
+        segment = depth_cleaned[previous:end]
+        edges.append(segment)
         previous, skip = i+1, True
 
-    return np.array(edges)
+    return edges
 
 
 class LiDARObject:
@@ -134,7 +133,33 @@ class LiDARObject:
         self.mean = np.average(depth, axis=0)
         self.edges = edges_detection(depth)
 
-        self.edges_count = self.edges.shape[0]
+        self.edges_count = len(self.edges)
+        # print('Edges Samples:', list(map(len, self.edges)))
+    
+
+    def cube_info(self) -> tuple[NDArray, float]:
+        edge = None
+        length = -1
+
+        for _edge in self.edges:
+            if len(_edge) > length:
+                edge, length = _edge, len(_edge)
+        
+        padding = edge.shape[0] // 3
+
+        angle = np.average(np.arctan2(
+            np.diff(edge[padding:-padding, 1]),
+            np.diff(edge[padding:-padding, 0]),
+        ))
+
+        edge_center = np.average(edge[padding:-padding], 0)
+
+        center = edge_center + np.array([
+            np.cos(angle + .5 * np.pi),
+            np.sin(angle + .5 * np.pi),
+        ]) * .014
+
+        return center, angle
 
 
 def clamp(value: float, min: float, max: float) -> float:
@@ -152,15 +177,7 @@ arm_driver.reset(False)
 
 while robot.step(CONTROL_TIMESTEP) != -1:
     depth = read_depth()
-    depth = correct_coordinates(depth, lidar.getFov())
-    # print_depth(depth, 'Depth:')
-    # diff = np.diff(depth)
-    # print_depth(diff * 10, ' Diff:  ')
-    # print(' | '.join(list(map(depth2str, objects))))
-    # d2 = np.diff(depth[:, 1], 2)
-    # print_depth(d2 * 100, 'Diff2:    ')
 
-    # print(depth)
     objects_depth = objects_segmentation(depth)
     objects_depth = list(filter(lambda o: not np.all(np.isnan(o)), objects_depth))
     objects = list(map(LiDARObject, objects_depth))
@@ -171,66 +188,46 @@ while robot.step(CONTROL_TIMESTEP) != -1:
         continue
     
     box = objects[0]
-    box_center = box.mean
+    box_center, box_angle = box.cube_info()
 
-    grab_position = np.array([.0, .435])
+    grab_position = np.array([.0, .445])
 
-    # print('Box Center:', ' '.join(map(str, box_center)))
     delta_position = box_center - grab_position
 
     direction = np.sign(delta_position)
     direction = direction / get_magnitude(direction)
 
     speed = np.array([
-        delta_position[0] * 20,
-        delta_position[1] * 5,
+        delta_position[0] * 2.5,
+        delta_position[1] * 2.5,
     ])
 
     max_speed = .22
-    angle = np.arctan2(speed[1], speed[0]) - .5 * np.pi
+    speed_angle = np.arctan2(speed[1], speed[0]) - .5 * np.pi
     magnitude = clamp(get_magnitude(speed), 0, max_speed)
 
+    wheels_driver.move(speed_angle, magnitude)
 
-    wheels_driver.move(angle, magnitude)
-
-    if magnitude < 1e-3: break
-
-    # wheels_driver.move('right', x_speed)
+    # print(f'Cube angle: {box_angle * 180 / np.pi:.1f}° • Objects: {len(objects)}')
+    if magnitude < 5e-3: break
 
 
-    # objects_edges = list(map(edges_detection, objects_depth))
-    # edges = np.concatenate(objects_edges)
-
-    # edge_detection(depth)
-
-    # print(edge_detection(depth))
-    # print('Detected Objects:', len(objects))
-    # print('Edges:')
-    # print('------')
-    # for edge in edges:
-    #     center = np.average(edge, axis=0)
-    #     angle = np.arctan2(edge[1, 1] - edge[0, 1], edge[1, 0] - edge[0, 0])
-    #     length = np.sqrt(np.sum(np.square(edge[0] - edge[1])))
-    #     print(f'• Center: ({center[0]}, {center[1]}), Length: {length}, Angle: {angle * 180 / np.pi:.1f}°')
-    
-
-    pass
-
+# Enter here exit cleanup code.
 
 wheels_driver.stop()
+lidar.disablePointCloud()
+lidar.disable()
 
-arm_driver.release()
+arm_driver.release(False)
 arm_driver.pose('floor')
+
+arm_driver[-2] = -box_angle
+arm_driver.wait()
 arm_driver.grab()
+
+arm_driver[-1] = .0
 arm_driver.pose('plate_back_high')
 arm_driver.release()
 arm_driver.pose('3_5_packed')
 arm_driver.reset()
 
-lidar.disablePointCloud()
-lidar.disable()
-
-# arm_driver.pose('3_5_packed')
-# arm_driver.reset()
-
-# Enter here exit cleanup code.
