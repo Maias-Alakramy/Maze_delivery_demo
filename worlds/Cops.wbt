@@ -35,8 +35,8 @@ WorldInfo {
 }
 Viewpoint {
   fieldOfView 0.75
-  orientation -0.6973741471295087 -0.03931155222476084 0.7156283258627137 3.1284875787629773
-  position 0.8042351450663441 -0.5530611892366312 11.282249034138758
+  orientation -0.5739071185257228 0.05765419021580776 0.8168883728246238 2.9822234813854904
+  position 1.1573894842943049 -0.06740691064543836 2.9600385138160923
   follow "TheBot"
 }
 TexturedBackground {
@@ -75,12 +75,126 @@ KukaBox {
   name "Green box"
   color 0 1 0
 }
+Solid {
+  translation 0 -0.43 0.02
+  children [
+    PointLight {
+      attenuation 0 0 1
+      color 0 1 0
+      intensity 0.01
+      location 0.05 -0.05 0.05
+    }
+    PointLight {
+      attenuation 0 0 1
+      color 0 1 0
+      intensity 0.01
+      location -0.05 -0.05 0.05
+    }
+    PointLight {
+      attenuation 0 0 1
+      color 0 1 0
+      intensity 0.01
+      location -0.05 0.05 0.05
+    }
+    PointLight {
+      attenuation 0 0 1
+      color 0 1 0
+      intensity 0.01
+      location 0.05 0.05 0.05
+    }
+    KukaBox {
+      color 0 1 0
+    }
+  ]
+  name "Green Solid"
+}
+Solid {
+  translation -0.07 -0.47 0.02
+  children [
+    PointLight {
+      attenuation 0 0 1
+      color 0 0 1
+      intensity 0.01
+      location 0.05 -0.05 0.05
+    }
+    PointLight {
+      attenuation 0 0 1
+      color 0 0 1
+      intensity 0.01
+      location -0.05 -0.05 0.05
+    }
+    PointLight {
+      attenuation 0 0 1
+      color 0 0 1
+      intensity 0.01
+      location -0.05 0.05 0.05
+    }
+    PointLight {
+      attenuation 0 0 1
+      color 0 0 1
+      intensity 0.01
+      location 0.05 0.05 0.05
+    }
+    KukaBox {
+      color 0 0 1
+    }
+  ]
+  name "Blue Solid"
+}
+Solid {
+  translation 0 -0.52 0.02
+  children [
+    PointLight {
+      attenuation 0 0 1
+      color 1 0 0
+      intensity 0.01
+      location 0.05 -0.05 0.05
+    }
+    PointLight {
+      attenuation 0 0 1
+      color 1 0 0
+      intensity 0.01
+      location -0.05 -0.05 0.05
+    }
+    PointLight {
+      attenuation 0 0 1
+      color 1 0 0
+      intensity 0.01
+      location -0.05 0.05 0.05
+    }
+    PointLight {
+      attenuation 0 0 1
+      color 1 0 0
+      intensity 0.01
+      location 0.05 0.05 0.05
+    }
+    KukaBox {
+      color 1 0 0
+    }
+  ]
+  name "Red Solid"
+}
 Youbot {
   translation 0.6 -0.04 0.12
   rotation 0 0 1 3.14159
   name "TheBot"
   controller "TheController"
   bodySlot [
+    LightSensor {
+      translation 0.31 0 -0.08
+      name "red sensor"
+      colorFilter 1 0 0
+    }
+    LightSensor {
+      translation 0.31 0 -0.08
+      name "blue sensor"
+      colorFilter 0 0 1
+    }
+    LightSensor {
+      translation 0.31 0 -0.08
+      name "green sensor"
+      colorFilter 0 1 0
+    }
     Compass {
     }
     DistanceSensor {

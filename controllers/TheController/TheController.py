@@ -67,6 +67,13 @@ class RobotController(Robot):
         self.PerfectRight=self.getDevice('PerfectRight')
         self.PerfectRight.enable(self.timestep)
 
+        self.greenSensor = self.getDevice('green sensor')
+        self.greenSensor.enable(self.timestep)
+        self.redSensor = self.getDevice('red sensor')
+        self.redSensor.enable(self.timestep)
+        self.blueSensor = self.getDevice('blue sensor')
+        self.blueSensor.enable(self.timestep)
+
         self.last_side_error=0
         self.all_side_errors=0
         self.all_side_times=0
@@ -87,6 +94,20 @@ class RobotController(Robot):
         self.leftDirection = False
 
         self.step(self.timestep)
+
+    def read_light_sensors(self):
+        green = self.greenSensor.getValue()
+        blue = self.blueSensor.getValue()
+        red = self.redSensor.getValue()
+
+        sensors = [red, green, blue]
+
+        if max(*sensors) == red:
+            return sensors, 'r'
+        elif max(*sensors) == green:
+            return sensors, 'g'
+        else:
+            return sensors, 'b'
 
     def read_sensors_value(self):
         value = 0
