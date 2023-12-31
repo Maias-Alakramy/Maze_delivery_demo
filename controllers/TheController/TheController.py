@@ -83,6 +83,8 @@ class RobotController(Robot):
         self.subCurrentState = "Line"
 
         self.prevState = None
+        self.boxAvoided = True
+        self.leftDirection = False
 
         self.step(self.timestep)
 
@@ -94,6 +96,13 @@ class RobotController(Robot):
                 value += self.sensors_coefficient[index]
                 once = True
         return value/5,once
+
+    def read_front_dist_sensors_value(self):
+        value = 0
+        for index, sensor in enumerate(self.front_dist_sen):
+            if sensor.getValue() < 900 :
+                value += self.sensors_coefficient[index]
+        return value
 
     def read_side_sensors_value(self):
         coeff=0.01
@@ -236,16 +245,15 @@ class RobotController(Robot):
         rad = math.atan2(north[1], north[0])
         bearing = (rad - 1.5708) / math.pi * 180
         return bearing
+
     def checkBox(self):
-        value = 0
-        for index, sensor in enumerate(self.front_dist_sen):
-            if sensor.getValue() < 900 :
-                value += self.sensors_coefficient[index]
+        value = self.read_front_dist_sensors_value()
         if abs(value/5) > 0.1 :
             self.notBoxed=False
             self.prevState = self.currentState
             self.currentState = "Box"
             self.subCurrentState = "Boxing"
+            self.boxAvoided = False
 
     def checkAvoidBox(self,fromLeft=False):
         if ((fromLeft and self.Rightest.getValue() < 900) or 
@@ -298,7 +306,14 @@ class RobotController(Robot):
                 self.forward()
                 self.checkBox()
             elif self.currentState == "Box":
-                self.getAway()
+                if self.read_front_dist_sensors_value()>0 and not(self.boxAvoided):
+                    self.leftDirection = True
+                    self.boxAvoided=True
+                elif not(self.boxAvoided):
+                    self.leftDirection = False
+                    self.boxAvoided=True
+                
+                self.getAway(self.leftDirection)
             elif self.currentState == "Maze":
                 self.checkBox()
                 self.wall_follow()
