@@ -148,7 +148,7 @@ class RobotController(Robot):
         self.numOfVs += 1
 
     def setVelocities(self):
-        if self.numOfVs == 0: return
+        if self.numOfVs == 0: self.numOfVs=1
         for i in range(len(self.motors)):
             self.motors[i].setVelocity(
                 clip(self.movment_velocity * (self.velocities[i] / self.numOfVs), -self.movment_velocity,
