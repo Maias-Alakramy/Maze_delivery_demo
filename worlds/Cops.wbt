@@ -56,29 +56,8 @@ Solid {
   boundingObject USE FLOOR_SHAPE
   locked TRUE
 }
-KukaBox {
-  translation -11.56 2.11 0.01
-  name "Blue box"
-  color 0 0 1
-}
-KukaBox {
-  translation -1.56 -0.35 0.01
-  name "Road box"
-  color 0 0 1
-}
-KukaBox {
-  translation -10.37 0.696478 0.0591757
-  rotation 1 0 0 -0.261795307179586
-  name "Red box"
-  color 1 0 0
-}
-KukaBox {
-  translation -4.7 2.8 0.01
-  name "Green box"
-  color 0 1 0
-}
 Solid {
-  translation 0 -1.06 0.02
+  translation -4.7 2.8 0.01
   children [
     PointLight {
       attenuation 0 0 1
@@ -111,7 +90,7 @@ Solid {
   name "Green Solid"
 }
 Solid {
-  translation -0.07 -1.12 0.02
+  translation -11.56 2.11 0.01
   children [
     PointLight {
       attenuation 0 0 1
@@ -144,7 +123,40 @@ Solid {
   name "Blue Solid"
 }
 Solid {
-  translation 0 -1.14 0.02
+  translation -1.56 -0.35 0.01
+  children [
+    PointLight {
+      attenuation 0 0 1
+      color 0 0 1
+      intensity 0.01
+      location 0.05 -0.05 0.05
+    }
+    PointLight {
+      attenuation 0 0 1
+      color 0 0 1
+      intensity 0.01
+      location -0.05 -0.05 0.05
+    }
+    PointLight {
+      attenuation 0 0 1
+      color 0 0 1
+      intensity 0.01
+      location -0.05 0.05 0.05
+    }
+    PointLight {
+      attenuation 0 0 1
+      color 0 0 1
+      intensity 0.01
+      location 0.05 0.05 0.05
+    }
+    KukaBox {
+      color 0 0 1
+    }
+  ]
+  name "Road Solid"
+}
+Solid {
+  translation -10.37 0.696478 0.0591757
   children [
     PointLight {
       attenuation 0 0 1
