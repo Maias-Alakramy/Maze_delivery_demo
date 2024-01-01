@@ -77,7 +77,7 @@ class LiDARVision:
 
 
     @staticmethod
-    def objects_segmentation(depth: NDArray, thresh=5e-2) -> list[NDArray]:
+    def objects_segmentation(depth: NDArray, thresh=1e-2) -> list[NDArray]:
         depth_safe = depth[:, 1].copy()
         depth_safe[np.isnan(depth_safe) | np.isinf(depth_safe)] = -1e2
 

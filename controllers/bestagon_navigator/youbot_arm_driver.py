@@ -34,6 +34,10 @@ class YoubotArmDriver:
             '3_5_packed': [None, None, -2.635, 1.78, .0],
 
             # -- Height Presets -- #
+            'pre_floor_0': [None, 1, -.8, -.5],
+            'pre_floor_1': [None, 1, -2.3, -1.0],
+            'pre_floor_2': [None, -.5, -2.3, -.3],
+            'pre_floor_3': [None, -.5, -2, -.5],
             'floor': [None, -.97, -1.55, -.61],
             'plate_front': [None, -.62, -.98, -1.53],
             'plate_back_high': [None, .678, .682, 1.74],
@@ -66,9 +70,9 @@ class YoubotArmDriver:
         self.pose('reset', block)
 
 
-    def pose(self, name: str, block=True) -> None:
+    def pose(self, name: str, block=True, threshold: float=1e-3) -> None:
         self[:] = self.poses[name]
-        if block: self.wait()
+        if block: self.wait(threshold=threshold)
     
     
     def wait(

@@ -67,6 +67,8 @@ class KukaProgram:
 
             if len(lidar.objects) == 0: continue
 
+            # print(list(map(lambda o: o.bounding_box[0], lidar.objects)))
+
             boxes = filter(
                 lambda o: .028 <= o.bounding_box[0] <= .043,
                 lidar.objects,
@@ -132,12 +134,23 @@ class KukaProgram:
         arm.release(False) # Prepare the gripper.
         arm.pose(side) # Rotate to the specified side.
 
+        arm.pose('pre_floor_1', threshold=5e-1)
+        arm.pose('pre_floor_2', threshold=5e-1)
+        arm.pose('pre_floor_3', threshold=5e-1)
         arm.pose('floor') # Get into the floor level.
         
         arm[-2] = -box_angle # Rotate the gripper to suite the box.
         arm.wait()
 
         arm.grab() # Grab the box
+
+
+        arm.pose('pre_floor_3', threshold=5e-1)
+        arm[-2] = 0 # Reset the gripper to avoid hitting a wall.
+        arm.wait(slice(-2, -1))
+        arm.pose('pre_floor_2', threshold=5e-1)
+        arm.pose('pre_floor_1', threshold=5e-1)
+        arm.pose('pre_floor_0', threshold=5e-1)
 
         arm.reset() # Reset the arm to the default position.
     
