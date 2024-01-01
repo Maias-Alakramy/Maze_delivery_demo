@@ -238,7 +238,7 @@ Youbot {
       name "DisSenFront_3"
       lookupTable [
         0 0 0
-        0.11335 1000 0
+        0.2 1000 0
       ]
       numberOfRays 2
     }
@@ -247,20 +247,16 @@ Youbot {
       name "DisSenFront_2"
       lookupTable [
         0 0 0
-        0.11335 1000 0
+        0.2 1000 0
       ]
       numberOfRays 2
-    }
-    DistanceSensor {
-      translation 0.29 0 -0.09
-      name "Middle"
     }
     DistanceSensor {
       translation 0.29 -0.04 -0.09
       name "DisSenFront_1"
       lookupTable [
         0 0 0
-        0.11335 1000 0
+        0.2 1000 0
       ]
       numberOfRays 2
     }
@@ -269,7 +265,7 @@ Youbot {
       name "DisSenFront_0"
       lookupTable [
         0 0 0
-        0.11335 1000 0
+        0.2 1000 0
       ]
       numberOfRays 2
     }

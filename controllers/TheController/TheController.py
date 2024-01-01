@@ -52,9 +52,6 @@ class RobotController(Robot):
         self.Rightest = self.getDevice("Rightest")
         self.Rightest.enable(self.timestep)
 
-        self.middle = self.getDevice("Middle")
-        self.middle.enable(self.timestep)
-
         self.Leftest = self.getDevice("Leftest")
         self.Leftest.enable(self.timestep)
 
