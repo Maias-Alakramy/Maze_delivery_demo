@@ -8,7 +8,7 @@ from utilities import sleep, clamp, get_magnitude, TO_RADIAN
 
 from mecanum_driver import MecanumDriver
 from youbot_arm_driver import YoubotArmDriver
-from lidar_vision import LiDARVision
+from lidar_vision import LiDARVision, LiDARObject
 
 
 
@@ -59,6 +59,27 @@ class KukaProgram:
         sleep(self.robot, duration)
     
 
+    def detect_box(self, side='front') -> tuple[str, LiDARObject] | tuple[None, None]:
+        lidars = self.lidars if side =='all' else { side: self.lidar[side] }
+
+        for side, lidar in lidars.items():
+            lidar.update()
+
+            if len(lidar.objects) == 0: continue
+
+            boxes = filter(
+                lambda o: .028 <= o.bounding_box[0] <= .043,
+                lidar.objects,
+            )
+
+            boxes = sorted(boxes, key=lambda o: o.mean[1])
+            if len(boxes) == 0: continue
+
+            return side, boxes[0]
+
+        return None, None
+
+
     def align_box(
             self, side='front', arm_side='front', *, 
             max_power=.22,
@@ -70,19 +91,18 @@ class KukaProgram:
         Returns the angle of the box after alignment in radian.
         """
 
-        lidar = self.lidar[side]
         capture_position = self.capture_positions[f'{arm_side}-{side}']
         
         while self.robot.step(self.timestep) != -1:
-            lidar.update()
+            box = self.detect_box(side)[1]
 
-            if len(lidar.objects) == 0:
-                raise Exception('No objects detected by LiDAR sensor')
-            
-            # FIXME: Properly identify the box between the objects and capture it.
-            box = lidar.objects[0]
+            if box is None:
+                raise Exception('No box detected by LiDAR sensor')
 
             box_center, box_angle = box.cube_info()
+
+            if np.any(np.isnan(box_center)) or np.isnan(box_angle):
+                raise Exception('Invalid box')
 
             delta_position = box_center - capture_position
 

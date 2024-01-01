@@ -55,14 +55,16 @@ class LiDARVision:
 
         for i, point in enumerate(cloud_points):
             coords = (-point.y, point.x)
-            if np.any(np.isnan(coords) | np.isinf(coords)): continue
-            self.depth[i] = coords
+            if np.any(np.isnan(coords) | np.isinf(coords)):
+                self.depth[i] = (np.nan, np.nan)
+            else:
+                self.depth[i] = coords
     
 
     def update_objects(self) -> None:
         objects_depth = LiDARVision.objects_segmentation(self.depth)
         objects_depth = filter(
-            lambda o: not np.all(np.isnan(o)),
+            lambda o: not np.all(np.isnan(o)) and len(o) > 0,
             objects_depth,
         )
 
@@ -136,7 +138,7 @@ class LiDARVision:
 class LiDARObject:
     def __init__(self, depth: NDArray) -> None:
         self.depth = depth
-        self.bounding_box_size = np.abs(depth[0] - depth[-1])
+        self.bounding_box = np.max(depth, 0) - np.min(depth, 0)
 
         self.mean = np.average(depth, axis=0)
         self.edges = LiDARVision.edges_detection(depth)
@@ -152,6 +154,9 @@ class LiDARObject:
         for _edge in self.edges:
             if len(_edge) > length:
                 edge, length = _edge, len(_edge)
+        
+        if edge.shape[0] < 6:
+            return np.array([np.nan, np.nan]), np.nan
         
         padding = edge.shape[0] // 3
 
