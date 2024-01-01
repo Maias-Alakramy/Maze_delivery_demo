@@ -5,6 +5,7 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/KukaBox.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/Youbot.proto"
 EXTERNPROTO "../protos/MazeCodegen.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/traffic/protos/RectangularPanel.proto"
 
 WorldInfo {
   title "MazeRunner"
@@ -35,8 +36,8 @@ WorldInfo {
 }
 Viewpoint {
   fieldOfView 0.75
-  orientation -0.5739071185257228 0.05765419021580776 0.8168883728246238 2.9822234813854904
-  position 1.1573894842943049 -0.06740691064543836 2.9600385138160923
+  orientation -0.7137381280351638 0.3732781337603512 0.5926561561691985 2.4432484647883803
+  position -11.782547766760645 0.5680684509457731 6.758253393216611
   follow "TheBot"
 }
 TexturedBackground {
@@ -336,4 +337,24 @@ MazeCodegen {
   size 34 34
   width 0.8
   height 4
+}
+RectangularPanel {
+  translation 0.55 0 -2.02026e-06
+  rotation 0 1 0 1.5708
+  name "start"
+  signImage [
+    ""
+  ]
+  color 0 1 0
+  size 1.3 1.3
+}
+RectangularPanel {
+  translation -11.4476 -0.359135 4.12658e-05
+  rotation 0.25056206820525934 -0.9351132545462786 -0.25056306820553154 -1.6378353071795866
+  name "finish"
+  signImage [
+    ""
+  ]
+  color 1 0 0
+  size 1 1
 }
