@@ -1,0 +1,62 @@
+#VRML_SIM R2023b utf8
+# 4 LiDAR sensors made for Youbot.
+
+
+PROTO YoubotBaseLiDAR [
+
+]
+{
+  Group {
+    children [
+      Lidar {
+        translation -0.05 0 -0.09
+        name "front-lidar"
+        fieldOfView 0.8
+        numberOfLayers 1
+        near 0.37
+        minRange 0.38
+        maxRange 0.7
+        resolution 0.0001
+        maxFrequency 100
+      }
+      Lidar {
+        translation 0.05 0 -0.09
+        rotation 0 0 1 -3.141592653579586
+        name "back-lidar"
+        fieldOfView 0.8
+        numberOfLayers 1
+        near 0.37
+        minRange 0.38
+        maxRange 0.7
+        resolution 0.0001
+        maxFrequency 100
+      }
+      Lidar {
+        translation 0 -0.72 -0.09
+        rotation 0 0 1 1.5707963268
+        name "left-lidar"
+        horizontalResolution 768
+        fieldOfView 0.5
+        numberOfLayers 1
+        near 0.96
+        minRange 0.97
+        maxRange 1.5
+        resolution 0.0001
+        maxFrequency 100
+      }
+      Lidar {
+        translation 0 0.72 -0.09
+        rotation 0 0 1 -1.5707963268
+        name "right-lidar"
+        horizontalResolution 768
+        fieldOfView 0.5
+        numberOfLayers 1
+        near 0.96
+        minRange 0.97
+        maxRange 1.5
+        resolution 0.0001
+        maxFrequency 100
+      }
+    ]
+  }
+}
