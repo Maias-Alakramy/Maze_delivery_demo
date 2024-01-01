@@ -72,7 +72,7 @@ class KukaProgram:
     
 
     def detect_box(self, side='front') -> tuple[str, LiDARObject] | tuple[None, None]:
-        lidars = self.lidars if side =='all' else { side: self.lidar[side] }
+        lidars = self.lidar if side =='all' else { side: self.lidar[side] }
 
         for side, lidar in lidars.items():
             lidar.update()
