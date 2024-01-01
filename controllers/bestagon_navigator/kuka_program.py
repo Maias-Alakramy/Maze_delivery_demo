@@ -34,7 +34,19 @@ class KukaProgram:
         self.capture_positions = {
             # {arm_side}-{side}
             'front-front': np.array([.0, .445]),
+            'front-left': np.array([.195, .965]),
+            'front-right': np.array([-.195, .965]),
+
             'back-back': np.array([.0, .445]),
+            'back-left': np.array([-.195, .965]),
+            'back-right': np.array([.195, .965])
+        }
+
+        self.movement_transforms = {
+            'front': np.array([[1, 0], [0, 1]]),
+            'back': np.array([[-1, 0], [0, -1]]),
+            'left': np.array([[0, 1], [-1, 0]]),
+            'right': np.array([[0, -1], [1, 0]]),
         }
     
 
@@ -94,6 +106,7 @@ class KukaProgram:
         """
 
         capture_position = self.capture_positions[f'{arm_side}-{side}']
+        movement_transform = self.movement_transforms[side]
         
         while self.robot.step(self.timestep) != -1:
             box = self.detect_box(side)[1]
@@ -111,7 +124,7 @@ class KukaProgram:
             movement = np.array([
                 delta_position[0] * 2.5,
                 delta_position[1] * 2.5,
-            ])
+            ]) @ movement_transform
 
             direction = np.arctan2(movement[1], movement[0]) - .5*np.pi
             power = clamp(get_magnitude(movement), 0, max_power)
@@ -128,6 +141,11 @@ class KukaProgram:
         """
         Captures a Kuka box considering it's aligned.
         """
+
+        if side == 'back': side = 'front'
+        if arm_side == 'back':
+            if side == 'left': side = 'right'
+            elif side == 'right': side = 'left'
 
         arm = self.arm[arm_side]
 

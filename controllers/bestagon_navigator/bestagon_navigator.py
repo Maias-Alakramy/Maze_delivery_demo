@@ -20,16 +20,16 @@ kuka_program.enable()
 kuka_program.reset()
 
 print('- Aligning box.')
-box_angle = kuka_program.align_box()
+box_angle = kuka_program.align_box('right', 'front')
 
 print('- Capturing box.')
-kuka_program.capture_box(box_angle)
+kuka_program.capture_box(box_angle, 'right', 'front')
 
 # Or both steps at once:
 # kuka_program.align_and_capture_box()
 
 print('- Exchanging box.')
-kuka_program.exchange_box()
+kuka_program.exchange_box(to='back')
 kuka_program.sleep(.5)
 
 print('- Exchanging box back.')

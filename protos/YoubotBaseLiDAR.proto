@@ -38,8 +38,8 @@ PROTO YoubotBaseLiDAR [
         horizontalResolution 768
         fieldOfView 0.5
         numberOfLayers 1
-        near 0.96
-        minRange 0.97
+        near 0.93
+        minRange 0.93
         maxRange 1.5
         resolution 0.0001
         maxFrequency 100
@@ -51,8 +51,8 @@ PROTO YoubotBaseLiDAR [
         horizontalResolution 768
         fieldOfView 0.5
         numberOfLayers 1
-        near 0.96
-        minRange 0.97
+        near 0.93
+        minRange 0.93
         maxRange 1.5
         resolution 0.0001
         maxFrequency 100
