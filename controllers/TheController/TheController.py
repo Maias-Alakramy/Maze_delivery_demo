@@ -90,6 +90,7 @@ class RobotController(Robot):
         self.subCurrentState = "Line"
 
         self.prevState = None
+        self.box_color = None
         self.boxAvoided = True
         self.leftDirection = False
 
@@ -283,9 +284,17 @@ class RobotController(Robot):
         if abs(value/5) > 0.1 :
             self.notBoxed=False
             self.prevState = self.currentState
-            self.currentState = "Box"
-            self.subCurrentState = "Boxing"
-            self.boxAvoided = False
+            if self.box_color is None:
+                self.box_color = self.read_light_sensors()[1]
+                self.currentState = "Box"
+                self.subCurrentState = "Boxing"
+                self.boxAvoided = False
+            elif self.box_color == self.read_light_sensors()[1]:
+                self.currentState = "Box"
+                self.subCurrentState = "Boxing"
+                self.boxAvoided = False
+            else:
+                self.currentState = "Catch"
 
     def checkAvoidBox(self,fromLeft=False):
         if ((fromLeft and self.Rightest.getValue() < 900) or 
