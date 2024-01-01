@@ -5,6 +5,7 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/KukaBox.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/Youbot.proto"
 EXTERNPROTO "../protos/MazeCodegen.proto"
+EXTERNPROTO "../protos/YoubotBaseLiDAR.proto"
 
 WorldInfo {
   title "MazeRunner"
@@ -35,8 +36,8 @@ WorldInfo {
 }
 Viewpoint {
   fieldOfView 0.75
-  orientation -0.5739071185257228 0.05765419021580776 0.8168883728246238 2.9822234813854904
-  position 1.1573894842943049 -0.06740691064543836 2.9600385138160923
+  orientation -0.7088176135312101 0.16003222237293863 0.6869987471242566 2.8373882337405125
+  position 0.6330121022093831 0.4711784052131853 4.295921786295554
   follow "TheBot"
 }
 TexturedBackground {
@@ -56,7 +57,7 @@ Solid {
   locked TRUE
 }
 KukaBox {
-  translation 0 0.5 0.01
+  translation -11.56 2.11 0.01
   name "Blue box"
   color 0 0 1
 }
@@ -66,7 +67,8 @@ KukaBox {
   color 0 0 1
 }
 KukaBox {
-  translation 0.1 0.4 0.01
+  translation -10.37 0.696478 0.0591757
+  rotation 1 0 0 -0.261795307179586
   name "Red box"
   color 1 0 0
 }
@@ -76,7 +78,7 @@ KukaBox {
   color 0 1 0
 }
 Solid {
-  translation 0 -0.43 0.02
+  translation 0 -1.06 0.02
   children [
     PointLight {
       attenuation 0 0 1
@@ -109,7 +111,7 @@ Solid {
   name "Green Solid"
 }
 Solid {
-  translation -0.07 -0.47 0.02
+  translation -0.07 -1.12 0.02
   children [
     PointLight {
       attenuation 0 0 1
@@ -142,7 +144,7 @@ Solid {
   name "Blue Solid"
 }
 Solid {
-  translation 0 -0.52 0.02
+  translation 0 -1.14 0.02
   children [
     PointLight {
       attenuation 0 0 1
@@ -180,6 +182,8 @@ Youbot {
   name "TheBot"
   controller "TheController"
   bodySlot [
+    YoubotBaseLiDAR {
+    }
     LightSensor {
       translation 0.31 0 -0.08
       name "red sensor"
@@ -308,6 +312,7 @@ Youbot {
       type "infra-red"
     }
   ]
+  numberOfArms 2
 }
 Solid {
   translation -2.88107 -0.50831 0.001

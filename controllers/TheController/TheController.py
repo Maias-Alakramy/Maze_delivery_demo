@@ -4,6 +4,9 @@ from scipy.spatial.transform import Rotation as R
 import numpy as np
 from controller import Robot
 
+from typing import *
+from numpy.typing import NDArray
+from kuka_program import KukaProgram
 from numpy import clip
 
 # motor are [Right_Up,Left_Up,Right_Down,Left_Down]
@@ -92,6 +95,14 @@ class RobotController(Robot):
         self.prevState = None
         self.boxAvoided = True
         self.leftDirection = False
+
+        
+        self.CONTROL_TIMESTEP = int(self.timestep * 4)
+
+        self.kuka_program = KukaProgram(self, self.CONTROL_TIMESTEP)
+        self.kuka_program.enable()
+        self.kuka_program.reset()
+
 
         self.step(self.timestep)
 
@@ -320,6 +331,39 @@ class RobotController(Robot):
             if (self.prevState=="Line"and self.checkLine()) or (self.prevState=="Maze" and self.checkMaze()):
                 self.currentState = self.prevState
 
+    def search_box(self):
+        side = self.kuka_program.detect_box('all')[0]
+        if side is not None:
+            self.currentState="Catch"
+        return side
+
+    def box(self):
+        box_side = self.search_box()
+        if box_side is None: return None
+
+        box_arm = 'back' if box_side == 'back' else 'front'
+
+        print(f'Found box at side "{box_side}", using arm "{box_arm}" to capture it.')
+
+        print('- Aligning box.')
+        box_angle = self.kuka_program.align_box(box_side, box_arm)
+
+        print('- Capturing box.')
+        self.kuka_program.capture_box(box_angle, box_side, box_arm)
+
+        # Or both steps at once:
+        # kuka_program.align_and_capture_box(box_side, box_arm)
+
+        if box_arm == 'front':
+            print('- Exchanging box.')
+            self.kuka_program.exchange_box(to='back')
+            self.kuka_program.sleep(.5)
+
+        print('- Resetting Robot.')
+        self.kuka_program.reset()
+        # self.kuka_program.disable()
+        self.currentState="Line"
+
     def loop(self):
         phase = 's'
         while self.step(self.timestep) != -1:
@@ -336,8 +380,9 @@ class RobotController(Robot):
                 elif not(self.boxAvoided):
                     self.leftDirection = False
                     self.boxAvoided=True
-                
                 self.getAway(self.leftDirection)
+            elif self.currentState == "Catch":
+                self.box()
             elif self.currentState == "Maze":
                 self.checkBox()
                 self.wall_follow()
