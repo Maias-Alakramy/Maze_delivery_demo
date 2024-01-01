@@ -39,7 +39,7 @@ print('- Capturing box.')
 kuka_program.capture_box(box_angle, box_side, box_arm)
 
 # Or both steps at once:
-# kuka_program.align_and_capture_box()
+# kuka_program.align_and_capture_box(box_side, box_arm)
 
 if box_arm == 'front':
     print('- Exchanging box.')
