@@ -101,6 +101,7 @@ class RobotController(Robot):
         self.kuka_program.enable()
         self.kuka_program.reset()
 
+        self.box_carried = 0
 
         self.step(self.timestep)
 
@@ -339,8 +340,6 @@ class RobotController(Robot):
 
     def search_box(self):
         side = self.kuka_program.detect_box('all')[0]
-        if side is not None:
-            self.currentState="Catch"
         return side
 
     def box(self):
@@ -356,11 +355,12 @@ class RobotController(Robot):
 
         print('- Capturing box.')
         self.kuka_program.capture_box(box_angle, box_side, box_arm)
+        self.box_carried += 1
 
         # Or both steps at once:
         # kuka_program.align_and_capture_box(box_side, box_arm)
 
-        if box_arm == 'front':
+        if box_arm == 'front' and self.box_carried<=1:
             print('- Exchanging box.')
             self.kuka_program.exchange_box(to='back')
             self.kuka_program.sleep(.5)
@@ -388,7 +388,8 @@ class RobotController(Robot):
                     self.boxAvoided=True
                 self.getAway(self.leftDirection)
             elif self.currentState == "Catch":
-                self.box()
+                if self.box() is None:
+                    self.forward()
             elif self.currentState == "Maze":
                 self.checkBox()
                 self.wall_follow()
