@@ -63,7 +63,7 @@ CucaBox {
       color 0 1 0
     }
 CucaBox {
-  translation -11.56 2.11 0.01
+  translation -11.33 2.11 0.01
   name "Blue Cuca"
       color 0 0 1
     }
@@ -73,7 +73,7 @@ CucaBox {
       color 0 0 1
     }
 CucaBox {
-  translation -7.9 4.74648 0.0591757
+  translation -7.9 4.54648 0.0591757
   name "Red Cuca"
       color 1 0 0
 }
