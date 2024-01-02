@@ -16,7 +16,7 @@ class RobotController(Robot):
         Robot.__init__(self)
 
         # end is only there to prevent out of index exception
-        self.decisionTree = ['r', 'l', 'f', 'l', 'l', 'l', 'r', 'r', 'ul', 'l', 'l', 'f', 'end']
+        self.decisionTree = ['f','b','l', 'r','b','f', 'f', 'l', 'l', 'l', 'r', 'l','b','f', 'ul', 'l', 'l','r','l','r','r','b','l','l','l', 'end']
 
         self.timestep = int(self.getBasicTimeStep())
         self.motors=[]
@@ -100,6 +100,8 @@ class RobotController(Robot):
 
         self.box_carried = 0
 
+        self.reference_rotation = 0
+
         self.step(self.timestep)
 
     def read_light_sensors(self):
@@ -137,6 +139,10 @@ class RobotController(Robot):
         return (self.PerfectRight.getValue() - self.PerfectLeft.getValue()) * coeff ,\
          self.PerfectRight.getValue() != 1000 and self.PerfectLeft.getValue() != 1000
 
+    def read_est_sensors_value (self):
+        coeff = 0.01
+        value = (self.Rightest.getValue() - self.Leftest.getValue()) * coeff
+        return value,value < 0.1 and self.Leftest.getValue() < 800 and self.Rightest.getValue() < 800
 
     def stearing(self,perc):
         self.velocities[1] -= perc
@@ -232,7 +238,7 @@ class RobotController(Robot):
             self.decision = self.decisionTree[0]
             self.decisionTree = self.decisionTree[1:]
 
-            self.reference_rotation = self.get_compass_bearing()
+            self.reference_rotation = self.get_compass_bearing(ref=True)
             self.current_rotation = self.reference_rotation
 
             if self.decision == 'l':
@@ -270,10 +276,13 @@ class RobotController(Robot):
             else:
                 return 'f'
 
-    def get_compass_bearing(self):
+    def get_compass_bearing(self,ref=False):
         north = self.compass.getValues()
         rad = math.atan2(north[1], north[0])
         bearing = (rad - 1.5708) / math.pi * 180
+        if not(ref) and self.reference_rotation < 0 and bearing > 0:
+            bearing = -360 + bearing
+            return bearing
         return bearing
 
     def checkBox(self):
@@ -314,6 +323,10 @@ class RobotController(Robot):
 
     def checkMaze(self):
         _,found = self.read_side_sensors_value()
+        return found
+    
+    def checkWall(self):
+        val,found = self.read_est_sensors_value()
         return found
 
     def resetState(self):
@@ -388,6 +401,8 @@ class RobotController(Robot):
                     self.forward()
             elif self.currentState == "Maze":
                 self.checkBox()
+                if self.checkWall():
+                    self.currentState = "DecisionTree"
                 self.wall_follow()
                 self.forward()
             elif self.currentState == "DecisionTree":
