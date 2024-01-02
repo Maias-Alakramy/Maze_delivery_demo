@@ -211,4 +211,14 @@ class KukaProgram:
         primary.reset()
 
 
+    def drop_boxes(self) -> None:
+        arms = list(self.arm.values())
+
+        for arm in arms: arm.pose('right', False)
+        for arm in arms: arm.pose('floor', False)
+        for arm in arms: arm.wait()
+        for arm in arms: arm.release(False)
+        for arm in arms: arm.wait()
+        for arm in arms: arm.reset(False)
+        for arm in arms: arm.wait()
 
