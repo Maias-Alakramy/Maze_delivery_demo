@@ -2,11 +2,11 @@
 
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/KukaBox.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/Youbot.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/traffic/protos/RectangularPanel.proto"
 EXTERNPROTO "../protos/YoubotBaseLiDAR.proto"
 EXTERNPROTO "../protos/MazeCodegen.proto"
+EXTERNPROTO "../protos/CucaBox.proto"
 
 WorldInfo {
   title "MazeRunner"
@@ -57,137 +57,25 @@ Solid {
   boundingObject USE FLOOR_SHAPE
   locked TRUE
 }
-Solid {
+CucaBox {
   translation -4.7 2.8 0.01
-  children [
-    PointLight {
-      attenuation 0 0 1
-      color 0 1 0
-      intensity 0.01
-      location 0.05 -0.05 0.05
-    }
-    PointLight {
-      attenuation 0 0 1
-      color 0 1 0
-      intensity 0.01
-      location -0.05 -0.05 0.05
-    }
-    PointLight {
-      attenuation 0 0 1
-      color 0 1 0
-      intensity 0.01
-      location -0.05 0.05 0.05
-    }
-    PointLight {
-      attenuation 0 0 1
-      color 0 1 0
-      intensity 0.01
-      location 0.05 0.05 0.05
-    }
-    KukaBox {
+  name "Green Cuca"
       color 0 1 0
     }
-  ]
-  name "Green Solid"
-}
-Solid {
+CucaBox {
   translation -11.56 2.11 0.01
-  children [
-    PointLight {
-      attenuation 0 0 1
-      color 0 0 1
-      intensity 0.01
-      location 0.05 -0.05 0.05
-    }
-    PointLight {
-      attenuation 0 0 1
-      color 0 0 1
-      intensity 0.01
-      location -0.05 -0.05 0.05
-    }
-    PointLight {
-      attenuation 0 0 1
-      color 0 0 1
-      intensity 0.01
-      location -0.05 0.05 0.05
-    }
-    PointLight {
-      attenuation 0 0 1
-      color 0 0 1
-      intensity 0.01
-      location 0.05 0.05 0.05
-    }
-    KukaBox {
+  name "Blue Cuca"
       color 0 0 1
     }
-  ]
-  name "Blue Solid"
-}
-Solid {
+CucaBox {
   translation -1.56 -0.35 0.01
-  children [
-    PointLight {
-      attenuation 0 0 1
-      color 0 0 1
-      intensity 0.01
-      location 0.05 -0.05 0.05
-    }
-    PointLight {
-      attenuation 0 0 1
-      color 0 0 1
-      intensity 0.01
-      location -0.05 -0.05 0.05
-    }
-    PointLight {
-      attenuation 0 0 1
-      color 0 0 1
-      intensity 0.01
-      location -0.05 0.05 0.05
-    }
-    PointLight {
-      attenuation 0 0 1
-      color 0 0 1
-      intensity 0.01
-      location 0.05 0.05 0.05
-    }
-    KukaBox {
+  name "Road Cuca"
       color 0 0 1
     }
-  ]
-  name "Road Solid"
-}
-Solid {
-  translation -10.37 0.696478 0.0591757
-  children [
-    PointLight {
-      attenuation 0 0 1
+CucaBox {
+  translation -7.9 4.74648 0.0591757
+  name "Red Cuca"
       color 1 0 0
-      intensity 0.01
-      location 0.05 -0.05 0.05
-    }
-    PointLight {
-      attenuation 0 0 1
-      color 1 0 0
-      intensity 0.01
-      location -0.05 -0.05 0.05
-    }
-    PointLight {
-      attenuation 0 0 1
-      color 1 0 0
-      intensity 0.01
-      location -0.05 0.05 0.05
-    }
-    PointLight {
-      attenuation 0 0 1
-      color 1 0 0
-      intensity 0.01
-      location 0.05 0.05 0.05
-    }
-    KukaBox {
-      color 1 0 0
-    }
-  ]
-  name "Red Solid"
 }
 Youbot {
   translation 0.6 -0.04 0.12
