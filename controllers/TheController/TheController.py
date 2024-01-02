@@ -94,10 +94,7 @@ class RobotController(Robot):
         self.boxAvoided = True
         self.leftDirection = False
 
-        
-        self.CONTROL_TIMESTEP = int(self.timestep * 4)
-
-        self.kuka_program = KukaProgram(self, self.CONTROL_TIMESTEP)
+        self.kuka_program = KukaProgram(self, self.timestep)
         self.kuka_program.enable()
         self.kuka_program.reset()
 
