@@ -191,7 +191,7 @@ class RobotController(Robot):
                 clip(self.movment_velocity * (self.velocities[i] / self.numOfVs), -self.movment_velocity,
                      self.movment_velocity))
 
-    def followPID(self,fun,nextState):
+    def followPID(self,fun,nextState,Kp):
         goal = 0
         reading,found = fun()
 
@@ -200,7 +200,6 @@ class RobotController(Robot):
             return
 
         error = goal - reading
-        Kp = 3
         P = Kp * error
 
 
@@ -222,10 +221,10 @@ class RobotController(Robot):
         self.stearing(stearingVal)
 
     def line_follow(self):
-        self.followPID(self.read_sensors_value,"Maze")
+        self.followPID(self.read_sensors_value,"Maze",Kp=4)
 
     def wall_follow(self):
-        self.followPID(self.read_side_sensors_value,"DecisionTree")
+        self.followPID(self.read_side_sensors_value,"DecisionTree",Kp=3)
 
     # phase can be s,t,f
     def decision_tree(self, phase):
