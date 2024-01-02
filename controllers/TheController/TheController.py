@@ -392,6 +392,9 @@ class RobotController(Robot):
                 self.forward()
             elif self.currentState == "DecisionTree":
                 phase = self.decision_tree(phase)
+            elif self.currentState == "Solved":
+                self.kuka_program.drop_boxes()
+                self.currentState = "Done"
 
             self.setVelocities()
             
