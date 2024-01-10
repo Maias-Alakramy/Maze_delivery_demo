@@ -14,9 +14,10 @@ from numpy import clip
 class RobotController(Robot):
     def __init__(self):
         Robot.__init__(self)
-
+        self.currCorner = -1
         # end is only there to prevent out of index exception
-        self.decisionTree = ['f','b','l', 'r','b','f', 'f', 'l', 'l', 'l', 'r', 'l','b','f', 'ul', 'l', 'l','r','l','r','r','b','l','l','l', 'end']
+        self.decisionTree = ['f0','b0','l0', 'r1','b1','f1', 'f0', 'l0', 'l0', 'l0', 'r1', 'l0','b0','f0', 'ul1', 'l1', 'l1','r0','l1','r1','r1','b1','l1','l1','l1', 'end']
+        self.shortDecisionTree = ['r', 'l', 'f', 'r', 'r','ul', 'l', 'l','r','f', 'end']
 
         self.timestep = int(self.getBasicTimeStep())
         self.motors=[]
@@ -235,8 +236,16 @@ class RobotController(Robot):
     # phase can be s,t,f
     def decision_tree(self, phase):
         if phase == 's':
-            self.decision = self.decisionTree[0]
-            self.decisionTree = self.decisionTree[1:]
+            if self.box_carried == 2 and self.currCorner != self.decisionTree[0][-1]:
+                self.decision= self.shortDecisionTree[0]
+                self.shortDecisionTree = self.shortDecisionTree[1:]
+            else:
+                self.decision = self.decisionTree[0]
+                self.decisionTree = self.decisionTree[1:]
+                if self.currCorner != self.decision[-1]:
+                    self.shortDecisionTree = self.shortDecisionTree[1:]
+                    self.currCorner=self.decision[-1]
+                self.decision = self.decision[:-1]
 
             self.reference_rotation = self.get_compass_bearing(ref=True)
             self.current_rotation = self.reference_rotation
